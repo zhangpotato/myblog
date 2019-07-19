@@ -1,0 +1,907 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta name="keywords" content="MySQL语句优化, Potato博客">
+    <meta name="description" content="怎么加快查询速度，优化查询效率，主要原则就是应尽量避免全表扫描，应该考虑在where及order by 涉及的列上建立索引。
+建立索引不是建的越多越好，原则是：
+①、一个表的索引不是越多越好，也没有一个具体的数字，根据以往的经验，一个表的索">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>MySQL语句优化 | Potato博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+</head>
+
+<body>
+
+<header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="container">
+            <div class="nav-wrapper">
+                <div class="brand-logo">
+                    <a href="/" class="waves-effect waves-light">
+                        
+                        <img src="/medias/logo.png" class="logo-img hide-on-small-only">
+                        
+                        <span class="logo-span">Potato博客</span>
+                    </a>
+                </div>
+                
+
+<a href="#" data-activates="mobile-nav" class="button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>首页</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>标签</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>分类</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>关于</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li>
+        <a id="toggleSearch" class="waves-effect waves-light">
+            <i id="searchIcon" class="mdi-action-search"></i>
+        </a>
+    </li>
+
+</ul>
+
+<div class="side-nav" id="mobile-nav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">Potato博客</div>
+        <div class="logo-desc">
+            
+            Take one small step each day.
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                关于
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/zhangpotato" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+
+    <div class="social-link"><a href="https://github.com/zhangpotato" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+    <i class="fa fa-github"></i>
+</a>
+<!-- <a href="mailto:chenjiayin1990@163.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+    <i class="fa fa-envelope-open"></i>
+</a>
+<a href="#!" class="tooltipped" data-tooltip="QQ联系我: 1181062873" data-position="top" data-delay="50">
+    <i class="fa fa-qq"></i>
+</a> -->
+<!-- 
+<a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+    <i class="fa fa-rss"></i>
+</a>
+ --></div>
+</div>
+
+            </div>
+        </div>
+
+        
+        <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/zhangpotato" class="github-corner tooltipped hide-on-med-and-down" target="_blank" data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewbox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/>
+    </svg>
+</a>
+        
+    </nav>
+</header>
+
+
+
+
+
+<div class="bg-cover post-cover" style="background-image: url('/medias/featureimages/8.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        MySQL语句优化
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="container content">
+
+    
+    <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            
+            <div class="article-tag">
+                
+                <a href="/tags/MySQL优化/" target="_blank">
+                    <span class="chip bg-color">MySQL优化</span>
+                </a>
+                
+            </div>
+            
+            <div class="post-info">
+                
+                <span class="post-cate">
+                <!--<span class="post-cate" style="margin-right: 0px">-->
+                    <i class="fa fa-bookmark fa-fw icon-category"></i>
+                    
+                    <a href="/categories/数据库/" class="post-category" target="_blank">
+                        数据库
+                    </a>
+                    
+                </span>
+                
+
+                <span class="post-date">
+                    <i class="fa fa-clock-o fa-fw"></i>2019-04-12
+                </span>
+				
+				
+                    <span id="busuanzi_container_page_pv" class="post-read">
+                    <i class="fa fa-eye fa-fw"></i>阅读 <span id="busuanzi_value_page_pv"></span>
+				
+            </span></div>
+        </div>
+        <hr>
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>怎么加快查询速度，优化查询效率，主要原则就是应尽量避免全表扫描，应该考虑在where及order by 涉及的列上建立索引。</p>
+<p>建立索引不是建的越多越好，原则是：</p>
+<p>①、一个表的索引不是越多越好，也没有一个具体的数字，根据以往的经验，<strong>一个表的索引最多不能超过6个，</strong>因为索引越多，对update和insert操作也会有性能的影响，涉及到索引的新建和重建操作。</p>
+<p>②、建立索引的方法论为：</p>
+<pre class=" language-sh"><code class="language-sh">1. 多数查询经常使用的列；
+2. 很少进行修改操作的列；
+3. 索引需要建立在数据差异化大的列上
+</code></pre>
+<h2 id="SQL优化分类"><a href="#SQL优化分类" class="headerlink" title="SQL优化分类"></a><strong>SQL优化分类</strong></h2><h3 id="1、sql语句模型结构优化指导"><a href="#1、sql语句模型结构优化指导" class="headerlink" title="1、sql语句模型结构优化指导"></a><strong>1、sql语句模型结构优化指导</strong></h3><h4 id="①、-ORDER-BY-LIMIT组合的索引优化"><a href="#①、-ORDER-BY-LIMIT组合的索引优化" class="headerlink" title="①、 ORDER BY + LIMIT组合的索引优化"></a><strong>①、 ORDER BY + LIMIT组合的索引优化</strong></h4><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">--如果一个SQL语句形如</span>
+<span class="token keyword">SELECT</span> <span class="token punctuation">[</span>column1<span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span>column2<span class="token punctuation">]</span><span class="token punctuation">,</span>…<span class="token punctuation">.</span> <span class="token keyword">FROM</span> <span class="token punctuation">[</span><span class="token keyword">TABLE</span><span class="token punctuation">]</span> <span class="token keyword">ORDER</span> <span class="token keyword">BY</span> <span class="token punctuation">[</span>sort<span class="token punctuation">]</span> <span class="token keyword">LIMIT</span> <span class="token punctuation">[</span><span class="token keyword">offset</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token keyword">LIMIT</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">--这个SQL语句优化比较简单，在[sort]这个栏位上建立索引即可。</span>
+</code></pre>
+<h4 id="②、-WHERE-ORDER-BY-LIMIT组合的索引优化"><a href="#②、-WHERE-ORDER-BY-LIMIT组合的索引优化" class="headerlink" title="②、 WHERE + ORDER BY + LIMIT组合的索引优化"></a><strong>②、 WHERE + ORDER BY + LIMIT组合的索引优化</strong></h4><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">--如果一个SQL语句形如</span>
+<span class="token keyword">SELECT</span> <span class="token punctuation">[</span>column1<span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span>column2<span class="token punctuation">]</span><span class="token punctuation">,</span>…<span class="token punctuation">.</span> <span class="token keyword">FROM</span> <span class="token punctuation">[</span><span class="token keyword">TABLE</span><span class="token punctuation">]</span> <span class="token keyword">WHERE</span> <span class="token punctuation">[</span>columnX<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token keyword">VALUE</span><span class="token punctuation">]</span> <span class="token keyword">ORDER</span> <span class="token keyword">BY</span> <span class="token punctuation">[</span>sort<span class="token punctuation">]</span> <span class="token keyword">LIMIT</span> <span class="token punctuation">[</span><span class="token keyword">offset</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token keyword">LIMIT</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">--这个语句，如果你仍然采用第一个例子中建立索引的方法，虽然可以用到索引，但是效率不高。更高效的方法是建立一个联合索引(columnX,sort)</span>
+</code></pre>
+<h4 id="③、WHERE-ORDER-BY多个栏位-LIMIT"><a href="#③、WHERE-ORDER-BY多个栏位-LIMIT" class="headerlink" title="③、WHERE+ORDER BY多个栏位+LIMIT"></a><strong>③、WHERE+ORDER BY多个栏位+LIMIT</strong></h4><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">-- 如果一个SQL语句形如</span>
+<span class="token keyword">SELECT</span> <span class="token operator">*</span> <span class="token keyword">FROM</span> <span class="token punctuation">[</span><span class="token keyword">table</span><span class="token punctuation">]</span> <span class="token keyword">WHERE</span> uid<span class="token operator">=</span><span class="token number">1</span> <span class="token keyword">ORDER</span> x<span class="token punctuation">,</span>y <span class="token keyword">LIMIT</span> <span class="token number">0</span><span class="token punctuation">,</span><span class="token number">10</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">-- 对于这个语句，大家可能是加一个这样的索引:(x,y,uid)。但实际上更好的效果是(uid,x,y)。这是由MySQL处理排序的机制造成的。</span>
+</code></pre>
+<h3 id="2、复合索引"><a href="#2、复合索引" class="headerlink" title="2、复合索引"></a><strong>2、复合索引</strong></h3><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">--形如(x,y,uid)索引的索引</span>
+<span class="token comment" spellcheck="true">--如果一个SQL语句形如</span>
+<span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> users <span class="token keyword">where</span> area <span class="token operator">=</span>’beijing’ <span class="token operator">and</span> age<span class="token operator">=</span><span class="token number">22</span><span class="token punctuation">;</span>
+
+<span class="token comment" spellcheck="true">--如果我们是在area和age上分别创建索引的话，由于mysql查询每次只能使用一个索引，所以虽然这样已经相对不做索引时全表扫描提高了很多效率，但是如果area，age两列上创建复合索引的话将带来更高的效率。</span>
+
+<span class="token comment" spellcheck="true">--在使用索引字段作为条件时，如果该索引是复合索引，那么必须使用到该索引中的第一个字段作为条件时才能保证系统使用该索引，否则该索引将不会被使用，并且应尽可能的让字段顺序与索引顺序相一致。</span>
+
+<span class="token comment" spellcheck="true">--例如我们建立了一个这样的索引（area,age,salary），那么其实相当于创建了（area,age,salary）,(area,age),(area)三个索引，这样称为最佳左前缀特性。</span>
+</code></pre>
+<h3 id="3、like语句优化"><a href="#3、like语句优化" class="headerlink" title="3、like语句优化"></a><strong>3、like语句优化</strong></h3><pre class=" language-sql"><code class="language-sql"><span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> name <span class="token operator">like</span> <span class="token string">'%abc%'</span>
+<span class="token comment" spellcheck="true">--由于abc前面用了“%”，因此该查询必然走全表查询，除非必要，否则不要在关键词前加%，优化成如下</span>
+<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> name <span class="token operator">like</span> <span class="token string">'abc%'</span>
+</code></pre>
+<h3 id="4、where子句使用-！-或-lt-gt-操作符优化"><a href="#4、where子句使用-！-或-lt-gt-操作符优化" class="headerlink" title="4、where子句使用 ！= 或 &lt;&gt; 操作符优化"></a><strong>4、where子句使用 ！= 或 &lt;&gt; 操作符优化</strong></h3><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">--在where子句中使用 ！= 或 &lt;>操作符，索引将被放弃使用，会进行全表查询。</span>
+如SQL:<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> ID <span class="token operator">!=</span> <span class="token number">5</span> 优化成：<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> ID<span class="token operator">></span><span class="token number">5</span> <span class="token operator">OR</span> ID<span class="token operator">&lt;</span><span class="token number">5</span>
+</code></pre>
+<h3 id="5、where子句中使用-IS-NULL-或-IS-NOT-NULL-的优化"><a href="#5、where子句中使用-IS-NULL-或-IS-NOT-NULL-的优化" class="headerlink" title="5、where子句中使用 IS NULL 或 IS NOT NULL 的优化"></a><strong>5、where子句中使用 IS NULL 或 IS NOT NULL 的优化</strong></h3><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">--在where子句中使用 IS NULL 或 IS NOT NULL 判断，索引将被放弃使用，会进行全表查询。</span>
+如SQL:<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> num <span class="token operator">IS</span> <span class="token boolean">NULL</span> 
+<span class="token comment" spellcheck="true">--优化成num上设置默认值0，确保表中num没有null值，</span>
+然后SQL为：<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> num<span class="token operator">=</span><span class="token number">0</span>
+</code></pre>
+<h3 id="6、where子句使用or的优化"><a href="#6、where子句使用or的优化" class="headerlink" title="6、where子句使用or的优化"></a><strong>6、where子句使用or的优化</strong></h3><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">--很多时候使用union all 或 nuin(必要的时候)的方式替换“or”会得到更好的效果。</span>
+<span class="token comment" spellcheck="true">--where子句中使用了or,索引将被放弃使用。</span>
+如SQL:<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> num <span class="token operator">=</span><span class="token number">10</span> <span class="token operator">or</span> num <span class="token operator">=</span> <span class="token number">20</span> 
+优化成：<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> num <span class="token operator">=</span> <span class="token number">10</span> <span class="token keyword">union</span> <span class="token keyword">all</span> <span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> num<span class="token operator">=</span><span class="token number">20</span>
+</code></pre>
+<h3 id="7、where子句使用IN-或-NOT-IN的优化"><a href="#7、where子句使用IN-或-NOT-IN的优化" class="headerlink" title="7、where子句使用IN 或 NOT IN的优化"></a><strong>7、where子句使用IN 或 NOT IN的优化</strong></h3><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">--in和not in 也要慎用，否则也会导致全表扫描。</span>
+
+<span class="token comment" spellcheck="true">--方案一：between替换in</span>
+如SQL:<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> num <span class="token operator">in</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span> 
+优化成：<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> num <span class="token operator">between</span> <span class="token number">1</span> <span class="token operator">and</span> <span class="token number">3</span>
+
+<span class="token comment" spellcheck="true">--方案二：exist替换in</span>
+如SQL:<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> num <span class="token operator">in</span><span class="token punctuation">(</span><span class="token keyword">select</span> num <span class="token keyword">from</span> <span class="token number">b</span> <span class="token punctuation">)</span> 
+优化成：<span class="token keyword">SELECT</span> num <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> num <span class="token keyword">exists</span><span class="token punctuation">(</span><span class="token keyword">select</span> <span class="token number">1</span> <span class="token keyword">from</span> B <span class="token keyword">where</span> B<span class="token punctuation">.</span>num <span class="token operator">=</span> A<span class="token punctuation">.</span>num<span class="token punctuation">)</span>
+
+<span class="token comment" spellcheck="true">--方案三：left join替换in</span>
+如SQL:<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> num <span class="token operator">in</span><span class="token punctuation">(</span><span class="token keyword">select</span> num <span class="token keyword">from</span> B<span class="token punctuation">)</span> 
+优化成：<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">LEFT</span> <span class="token keyword">JOIN</span> B <span class="token keyword">ON</span> A<span class="token punctuation">.</span>num <span class="token operator">=</span> B<span class="token punctuation">.</span>num
+</code></pre>
+<h3 id="8、where子句中对字段进行表达式操作的优化"><a href="#8、where子句中对字段进行表达式操作的优化" class="headerlink" title="8、where子句中对字段进行表达式操作的优化"></a><strong>8、where子句中对字段进行表达式操作的优化</strong></h3><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">--不要在where子句中的“=”左边进行函数、算数运算或其他表达式运算，否则系统将可能无法正确使用索引。</span>
+如SQL:<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> num<span class="token operator">/</span><span class="token number">2</span> <span class="token operator">=</span> <span class="token number">100</span> 
+优化成：<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> num <span class="token operator">=</span> <span class="token number">100</span><span class="token operator">*</span><span class="token number">2</span>
+
+如SQL:<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> substring<span class="token punctuation">(</span>name<span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token string">'abc'</span> 
+优化成：<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> <span class="token operator">LIKE</span> <span class="token string">'abc%'</span>
+
+如SQL:<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> datediff<span class="token punctuation">(</span>day<span class="token punctuation">,</span>createdate<span class="token punctuation">,</span><span class="token string">'2016-11-30'</span><span class="token punctuation">)</span><span class="token operator">=</span><span class="token number">0</span> 
+优化成：<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> createdate<span class="token operator">>=</span><span class="token string">'2016-11-30'</span> <span class="token operator">and</span> createdate<span class="token operator">&lt;</span><span class="token string">'2016-12-1'</span>
+
+如SQL:<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> year<span class="token punctuation">(</span>addate<span class="token punctuation">)</span> <span class="token operator">&lt;</span><span class="token number">2016</span> 
+优化成：<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">where</span> addate<span class="token operator">&lt;</span><span class="token string">'2016-01-01'</span>
+</code></pre>
+<h3 id="9、尽量避免select-from"><a href="#9、尽量避免select-from" class="headerlink" title="9、尽量避免select * from　"></a><strong>9、尽量避免select * from</strong>　</h3><pre class=" language-sql"><code class="language-sql">任何地方都不要用 <span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> <span class="token keyword">table</span> ，用具体的字段列表替换 <span class="token string">"*"</span>，不要返回用不到的字段
+</code></pre>
+<h3 id="10、使用“临时表”暂存中间结果"><a href="#10、使用“临时表”暂存中间结果" class="headerlink" title="10、使用“临时表”暂存中间结果"></a><strong>10、使用“临时表”暂存中间结果</strong></h3><pre class=" language-sh"><code class="language-sh">采用临时表暂存中间结果好处：
+1）避免程序中多次扫描主表，减少程序执行“共享锁”阻塞“更新锁”，减少了阻塞，提高了并发性能。
+2）尽量使用表变量来代替临时表。如果表变量包含大量数据，请注意索引非常有限（只有主键索引）。
+3）避免频繁创建和删除临时表，以减少系统资源的浪费。
+4）尽量避免向客户端返回大数据量，若数据量过大，应考虑相应需求是否合理。
+</code></pre>
+<h3 id="11、limit分页优化"><a href="#11、limit分页优化" class="headerlink" title="11、limit分页优化"></a><strong>11、limit分页优化</strong></h3><pre class=" language-sql"><code class="language-sql">当偏移量特别时，<span class="token keyword">limit</span>效率会非常低
+<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">LIMIT</span> <span class="token number">1000</span><span class="token punctuation">,</span><span class="token number">10</span>   很快
+<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token keyword">LIMIT</span> <span class="token number">90000</span><span class="token punctuation">,</span><span class="token number">10</span> 很慢
+
+<span class="token comment" spellcheck="true">--优化方法：</span>
+方法一：<span class="token keyword">select</span> id <span class="token keyword">from</span> A <span class="token keyword">order</span> <span class="token keyword">by</span> id <span class="token keyword">limit</span> <span class="token number">90000</span><span class="token punctuation">,</span><span class="token number">10</span><span class="token punctuation">;</span> 
+很快，<span class="token number">0.04</span>秒就OK。 因为用了id主键做索引当然快
+方法二：<span class="token keyword">select</span> id<span class="token punctuation">,</span>title <span class="token keyword">from</span> A <span class="token keyword">where</span> id<span class="token operator">>=</span><span class="token punctuation">(</span><span class="token keyword">select</span> id <span class="token keyword">from</span> collect <span class="token keyword">order</span> <span class="token keyword">by</span> id <span class="token keyword">limit</span> <span class="token number">90000</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token keyword">limit</span> <span class="token number">10</span><span class="token punctuation">;</span>
+方法三：<span class="token keyword">select</span> id <span class="token keyword">from</span> A <span class="token keyword">order</span> <span class="token keyword">by</span> id  <span class="token operator">between</span> <span class="token number">10000000</span> <span class="token operator">and</span> <span class="token number">10000010</span><span class="token punctuation">;</span>
+</code></pre>
+<h3 id="12、批量插入优化"><a href="#12、批量插入优化" class="headerlink" title="12、批量插入优化"></a><strong>12、批量插入优化</strong></h3><pre class=" language-sql"><code class="language-sql"><span class="token keyword">INSERT</span> <span class="token keyword">into</span> person<span class="token punctuation">(</span>name<span class="token punctuation">,</span>age<span class="token punctuation">)</span> <span class="token keyword">values</span><span class="token punctuation">(</span><span class="token string">'A'</span><span class="token punctuation">,</span><span class="token number">14</span><span class="token punctuation">)</span>
+<span class="token keyword">INSERT</span> <span class="token keyword">into</span> person<span class="token punctuation">(</span>name<span class="token punctuation">,</span>age<span class="token punctuation">)</span> <span class="token keyword">values</span><span class="token punctuation">(</span><span class="token string">'B'</span><span class="token punctuation">,</span><span class="token number">14</span><span class="token punctuation">)</span>
+<span class="token keyword">INSERT</span> <span class="token keyword">into</span> person<span class="token punctuation">(</span>name<span class="token punctuation">,</span>age<span class="token punctuation">)</span> <span class="token keyword">values</span><span class="token punctuation">(</span><span class="token string">'C'</span><span class="token punctuation">,</span><span class="token number">14</span><span class="token punctuation">)</span>
+
+<span class="token comment" spellcheck="true">--可优化为：</span>
+<span class="token keyword">INSERT</span> <span class="token keyword">into</span> person<span class="token punctuation">(</span>name<span class="token punctuation">,</span>age<span class="token punctuation">)</span> <span class="token keyword">values</span><span class="token punctuation">(</span><span class="token string">'A'</span><span class="token punctuation">,</span><span class="token number">14</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token punctuation">(</span><span class="token string">'B'</span><span class="token punctuation">,</span><span class="token number">14</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token punctuation">(</span><span class="token string">'C'</span><span class="token punctuation">,</span><span class="token number">14</span><span class="token punctuation">)</span>
+</code></pre>
+<h3 id="13、利用limit-1-、top-1-取得一行"><a href="#13、利用limit-1-、top-1-取得一行" class="headerlink" title="13、利用limit 1 、top 1 取得一行"></a><strong>13、利用limit 1 、top 1 取得一行</strong></h3><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">--有时要查询一张表时，你知道只需要看一条记录，你可能去查询一条特殊的记录。可以使用limit 1 或者 top 1 来终止数据库索引继续扫描整个表或索引。</span>
+如SQL：<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token operator">LIKE</span> <span class="token string">'abc%'</span> 优化为：<span class="token keyword">SELECT</span> id <span class="token keyword">FROM</span> A <span class="token operator">LIKE</span> <span class="token string">'abc%'</span> <span class="token keyword">limit</span> <span class="token number">1</span>
+</code></pre>
+<h3 id="14、尽量不要使用-BY-RAND-命令"><a href="#14、尽量不要使用-BY-RAND-命令" class="headerlink" title="14、尽量不要使用 BY RAND()命令"></a><strong>14、尽量不要使用 BY RAND()命令</strong></h3><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">-- BY RAND()是随机显示结果，这个函数可能会为表中每一个独立的行执行BY RAND()命令，这个会消耗处理器的处理能力。</span>
+
+如SQL：<span class="token keyword">SELECT</span> <span class="token operator">*</span> <span class="token keyword">FROM</span> A <span class="token keyword">order</span> <span class="token keyword">by</span> rand<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">limit</span> <span class="token number">10</span> 
+优化为：<span class="token keyword">SELECT</span> <span class="token operator">*</span> <span class="token keyword">FROM</span> A <span class="token keyword">WHERE</span> id <span class="token operator">>=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">SELECT</span> <span class="token function">MAX</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span> <span class="token keyword">FROM</span> A<span class="token punctuation">)</span><span class="token operator">-</span><span class="token punctuation">(</span><span class="token keyword">SELECT</span> <span class="token function">MIN</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span> <span class="token keyword">FROM</span> A<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">*</span> RAND<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token keyword">SELECT</span> <span class="token function">MIN</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span> <span class="token keyword">FROM</span> A<span class="token punctuation">)</span> <span class="token keyword">LIMIT</span> <span class="token number">10</span>
+</code></pre>
+<h3 id="15、排序的索引问题"><a href="#15、排序的索引问题" class="headerlink" title="15、排序的索引问题　"></a><strong>15、排序的索引问题</strong>　</h3><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">--Mysql查询只是用一个索引，因此如果where子句中已经使用了索引的话，那么order by中的列是不会使用索引的。</span>
+<span class="token comment" spellcheck="true">--因此数据库默认排序可以符合要求情况下不要使用排序操作；</span>
+<span class="token comment" spellcheck="true">--尽量不要包含多个列的排序，如果需要最好给这些列创建复合索引。</span>
+</code></pre>
+<h3 id="16、尽量用-union-add-替换-union"><a href="#16、尽量用-union-add-替换-union" class="headerlink" title="16、尽量用 union add 替换 union"></a><strong>16、尽量用 union add 替换 union</strong></h3><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">--union和union all的差异主要是前者需要将两个（或者多个）结果集合并后再进行唯一性过滤操作，这就会涉及到排序，增加大量的cpu运算，加大资源消耗及延迟。</span>
+<span class="token comment" spellcheck="true">--所以当我们可以确认不可能出现重复结果集或者不在乎重复结果集的时候，尽量使用union all而不是union</span>
+</code></pre>
+<h3 id="17、避免类型转换"><a href="#17、避免类型转换" class="headerlink" title="17、避免类型转换"></a><strong>17、避免类型转换</strong></h3><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">--这里所说的“类型转换”是指where子句中出现column字段的类型和传入的参数类型不一致的时候发生的类型转换。人为的上通过转换函数进行转换，直接导致mysql无法使用索引。如果非要转型，应该在传入参数上进行转换。</span>
+例如 utime 是 <span class="token keyword">datetime</span> 类型，传入的参数是 “ <span class="token number">2016</span><span class="token operator">-</span><span class="token number">07</span><span class="token operator">-</span><span class="token number">23</span> ”
+在比较大小时通常是 <span class="token keyword">date</span>（utime）<span class="token operator">></span><span class="token string">"2016-07-23"</span>
+可以优化为utime<span class="token operator">></span><span class="token string">"2016-07-23 00：00：00"</span>
+</code></pre>
+<h3 id="18、尽可能使用更小的字段"><a href="#18、尽可能使用更小的字段" class="headerlink" title="18、尽可能使用更小的字段　"></a><strong>18、尽可能使用更小的字段</strong>　</h3><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">--MySQL从磁盘读取数据后是存储到内存中的，然后使用cpu周期和磁盘I/O读取它，这意味着越小的数据类型占用的空间越小，从磁盘读或打包到内存的效率都更好，但也不要太过执着减小数据类型，要是以后应用程序发生什么变化就没有空间了。</span>
+
+<span class="token comment" spellcheck="true">--修改表将需要重构，间接地可能引起代码的改变，这是很头疼的问题，因此需要找到一个平衡点。　</span>
+</code></pre>
+<h3 id="19、Inner-join-和-left-join、right-join、子查询"><a href="#19、Inner-join-和-left-join、right-join、子查询" class="headerlink" title="19、Inner join 和 left join、right join、子查询"></a><strong>19、Inner join 和 left join、right join、子查询</strong></h3><h4 id="第一：inner-join内连接也叫等值连接，left-right-join是外连接。"><a href="#第一：inner-join内连接也叫等值连接，left-right-join是外连接。" class="headerlink" title="第一：inner join内连接也叫等值连接，left/right join是外连接。"></a><strong>第一：inner join内连接也叫等值连接，left/right join是外连接。</strong></h4><pre class=" language-sql"><code class="language-sql"><span class="token keyword">SELECT</span> A<span class="token punctuation">.</span>id<span class="token punctuation">,</span>A<span class="token punctuation">.</span>name<span class="token punctuation">,</span>B<span class="token punctuation">.</span>id<span class="token punctuation">,</span>B<span class="token punctuation">.</span>name <span class="token keyword">FROM</span> A <span class="token keyword">LEFT</span> <span class="token keyword">JOIN</span> B <span class="token keyword">ON</span> A<span class="token punctuation">.</span>id <span class="token operator">=</span>B<span class="token punctuation">.</span>id<span class="token punctuation">;</span>
+
+<span class="token keyword">SELECT</span> A<span class="token punctuation">.</span>id<span class="token punctuation">,</span>A<span class="token punctuation">.</span>name<span class="token punctuation">,</span>B<span class="token punctuation">.</span>id<span class="token punctuation">,</span>B<span class="token punctuation">.</span>name <span class="token keyword">FROM</span> A <span class="token keyword">RIGHT</span> <span class="token keyword">JOIN</span> <span class="token keyword">ON</span> B A<span class="token punctuation">.</span>id<span class="token operator">=</span> B<span class="token punctuation">.</span>id<span class="token punctuation">;</span>
+
+<span class="token keyword">SELECT</span> A<span class="token punctuation">.</span>id<span class="token punctuation">,</span>A<span class="token punctuation">.</span>name<span class="token punctuation">,</span>B<span class="token punctuation">.</span>id<span class="token punctuation">,</span>B<span class="token punctuation">.</span>name <span class="token keyword">FROM</span> A <span class="token keyword">INNER</span> <span class="token keyword">JOIN</span> <span class="token keyword">ON</span> A<span class="token punctuation">.</span>id <span class="token operator">=</span>B<span class="token punctuation">.</span>id<span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">--经过来之多方面的证实inner join性能比较快，因为inner join是等值连接，或许返回的行数比较少。但是我们要记得有些语句隐形的用到了等值连接，如：</span>
+
+<span class="token keyword">SELECT</span> A<span class="token punctuation">.</span>id<span class="token punctuation">,</span>A<span class="token punctuation">.</span>name<span class="token punctuation">,</span>B<span class="token punctuation">.</span>id<span class="token punctuation">,</span>B<span class="token punctuation">.</span>name <span class="token keyword">FROM</span> A<span class="token punctuation">,</span>B <span class="token keyword">WHERE</span> A<span class="token punctuation">.</span>id <span class="token operator">=</span> B<span class="token punctuation">.</span>id<span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">--推荐：能用 inner join 连接尽量使用 inner join 连接</span>
+</code></pre>
+<h4 id="第二：子查询的性能又比外连接性能慢，尽量用外连接来替换子查询。"><a href="#第二：子查询的性能又比外连接性能慢，尽量用外连接来替换子查询。" class="headerlink" title="第二：子查询的性能又比外连接性能慢，尽量用外连接来替换子查询。"></a><strong>第二：子查询的性能又比外连接性能慢，尽量用外连接来替换子查询。</strong></h4><pre class=" language-sql"><code class="language-sql"><span class="token keyword">Select</span> <span class="token operator">*</span> <span class="token keyword">from</span> A <span class="token keyword">where</span> <span class="token keyword">exists</span> <span class="token punctuation">(</span><span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> B <span class="token keyword">where</span> id<span class="token operator">>=</span><span class="token number">3000</span> <span class="token operator">and</span> A<span class="token punctuation">.</span>uuid<span class="token operator">=</span>B<span class="token punctuation">.</span>uuid<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment" spellcheck="true">--A表的数据为十万级表，B表为百万级表，在本机执行差不多用2秒左右，我们可以通过explain可以查看到子查询是一个相关子查询(DEPENDENCE SUBQUERY);Mysql是先对外表A执行全表查询，然后根据uuid逐次执行子查询，如果外层表是一个很大的表，我们可以想象查询性能会表现比这个更加糟糕。</span>
+
+<span class="token comment" spellcheck="true">--一种简单的优化就是用innerjoin的方法来代替子查询，查询语句改为：</span>
+<span class="token keyword">Select</span><span class="token operator">*</span> <span class="token keyword">from</span> A <span class="token keyword">inner</span> <span class="token keyword">join</span> B <span class="token keyword">ON</span> A<span class="token punctuation">.</span>uuid<span class="token operator">=</span>B<span class="token punctuation">.</span>uuid <span class="token keyword">using</span><span class="token punctuation">(</span>uuid<span class="token punctuation">)</span> <span class="token keyword">where</span> <span class="token number">b</span><span class="token punctuation">.</span>uuid<span class="token operator">>=</span><span class="token number">3000</span><span class="token punctuation">;</span> 
+<span class="token comment" spellcheck="true">--这个语句执行测试不到一秒；</span>
+
+<span class="token comment" spellcheck="true">--第三：使用JOIN时候，应该用小的结果join大的结果（left join 左边表结果尽量小，如果有条件应该放到左边先处理，right join同理反向），同时尽量把牵涉到多表联合的查询拆分多个query</span>
+<span class="token comment" spellcheck="true">--多个表查询效率低，容易锁表和阻塞</span>
+<span class="token comment" spellcheck="true">--如：</span>
+<span class="token keyword">Select</span> <span class="token operator">*</span> <span class="token keyword">from</span> A <span class="token keyword">left</span> <span class="token keyword">join</span> B A<span class="token punctuation">.</span>id<span class="token operator">=</span>B<span class="token punctuation">.</span>ref_id <span class="token keyword">where</span>  A<span class="token punctuation">.</span>id<span class="token operator">></span><span class="token number">10</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">--可以优化为：</span>
+<span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> <span class="token punctuation">(</span><span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> A wehre id <span class="token operator">></span><span class="token number">10</span><span class="token punctuation">)</span> T1 <span class="token keyword">left</span> <span class="token keyword">join</span> B <span class="token keyword">on</span> T1<span class="token punctuation">.</span>id<span class="token operator">=</span>B<span class="token punctuation">.</span>ref_id<span class="token punctuation">;</span>
+</code></pre>
+<h3 id="20、exist-代替-in"><a href="#20、exist-代替-in" class="headerlink" title="20、exist 代替 in"></a><strong>20、exist 代替 in</strong></h3><pre class=" language-sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span> <span class="token keyword">from</span> A <span class="token keyword">WHERE</span> idin <span class="token punctuation">(</span><span class="token keyword">SELECT</span> id <span class="token keyword">from</span> B<span class="token punctuation">)</span>
+<span class="token keyword">SELECT</span> <span class="token operator">*</span> <span class="token keyword">from</span> A <span class="token keyword">WHERE</span> id <span class="token keyword">EXISTS</span><span class="token punctuation">(</span><span class="token keyword">SELECT</span> <span class="token number">1</span> <span class="token keyword">from</span> A<span class="token punctuation">.</span>id<span class="token operator">=</span> B<span class="token punctuation">.</span>id<span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true">--in 是在内存中遍历比较</span>
+<span class="token comment" spellcheck="true">--exist 需要查询数据库，所以当B的数据量比较大时，exists效率优于in.</span>
+
+<span class="token comment" spellcheck="true">--in()只执行一次，把B表中的所有id字段缓存起来，之后检查A表的id是否与B表中的id相等，如果id相等则将A表的记录加入到结果集中，直到遍历完A表的所有记录。</span>
+
+<span class="token comment" spellcheck="true">--In 操作的流程原理如同一下代码</span>
+  List resultSet<span class="token operator">=</span>{}<span class="token punctuation">;</span>
+
+    Array A<span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> A<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    Array B<span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">select</span> id <span class="token keyword">from</span> B<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span>i<span class="token operator">&lt;</span>A<span class="token punctuation">.</span>length<span class="token punctuation">;</span>i<span class="token operator">+</span><span class="token operator">+</span><span class="token punctuation">)</span> {
+            <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> j<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span>j<span class="token operator">&lt;</span>B<span class="token punctuation">.</span>length<span class="token punctuation">;</span>j<span class="token operator">+</span><span class="token operator">+</span><span class="token punctuation">)</span> {
+          <span class="token keyword">if</span><span class="token punctuation">(</span>A<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>id<span class="token operator">=</span><span class="token operator">=</span>B<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">.</span>id<span class="token punctuation">)</span> {
+             resultSet<span class="token punctuation">.</span><span class="token keyword">add</span><span class="token punctuation">(</span>A<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+             <span class="token keyword">break</span><span class="token punctuation">;</span>
+          }
+       }
+    }
+    <span class="token keyword">return</span> resultSet<span class="token punctuation">;</span>   
+
+<span class="token comment" spellcheck="true">--可以看出，当B表数据较大时不适合使用in()，因为它会B表数据全部遍历一次</span>
+<span class="token comment" spellcheck="true">--如：A表有10000条记录，B表有1000000条记录，那么最多有可能遍历10000*1000000次，效率很差。</span>
+<span class="token comment" spellcheck="true">--再如：A表有10000条记录，B表有100条记录，那么最多有可能遍历10000*100次，遍历次数大大减少，效率大大提升。</span>
+<span class="token comment" spellcheck="true">--结论：in()适合B表比A表数据小的情况</span>
+
+<span class="token comment" spellcheck="true">--exist()会执行A.length()次，执行过程代码如下</span>
+    List resultSet<span class="token operator">=</span>{}<span class="token punctuation">;</span>
+    Array A<span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> A<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span>i<span class="token operator">&lt;</span>A<span class="token punctuation">.</span>length<span class="token punctuation">;</span>i<span class="token operator">+</span><span class="token operator">+</span><span class="token punctuation">)</span> {
+       <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token keyword">exists</span><span class="token punctuation">(</span>A<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>id<span class="token punctuation">)</span> {  <span class="token comment" spellcheck="true">//执行select 1 from B where B.id=A.id是否有记录返回</span>
+           resultSet<span class="token punctuation">.</span><span class="token keyword">add</span><span class="token punctuation">(</span>A<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+       }
+    }
+    <span class="token keyword">return</span> resultSet<span class="token punctuation">;</span>
+
+<span class="token comment" spellcheck="true">--当B表比A表数据大时适合使用exists()，因为它没有那么多遍历操作，只需要再执行一次查询就行。</span>
+<span class="token comment" spellcheck="true">--如：A表有10000条记录，B表有1000000条记录，那么exists()会执行10000次去判断A表中的id是否与B表中的id相等。</span>
+<span class="token comment" spellcheck="true">--如：A表有10000条记录，B表有100000000条记录，那么exists()还是执行10000次，因为它只执行A.length次，可见B表数据越多，越适合exists()发挥效果。</span>
+<span class="token comment" spellcheck="true">--再如：A表有10000条记录，B表有100条记录，那么exists()还是执行10000次，还不如使用in()遍历10000*100次，因为in()是在内存里遍历比较，而exists()需要查询数据库，</span>
+<span class="token comment" spellcheck="true">--我们都知道查询数据库所消耗的性能更高，而内存比较很快。</span>
+
+<span class="token comment" spellcheck="true">--结论：exists()适合B表比A表数据大的情况</span>
+<span class="token comment" spellcheck="true">--当A表数据与B表数据一样大时，in与exists效率差不多，可任选一个使用。</span>
+</code></pre>
+
+            </div>
+            <hr>
+
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff;
+        background-color: #22AB38;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff;
+        background-color: #019FE8;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a class="reward-link btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs">
+                        <li class="tab wechat-tab waves-effect waves-light"><a class="active" href="#wechat">微信</a></li>
+                        <li class="tab alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                    </ul>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.png" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('#reward .reward-link').on('click', function () {
+            $('#rewardModal').openModal();
+        });
+
+        $('#rewardModal .close').on('click', function () {
+            $('#rewardModal').closeModal();
+        });
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            <div class="reprint">
+                <p>
+                    <span class="reprint-tip">转载请注明: </span>
+                    <a href="http://yoursite.com" class="b-link-green">Potato博客</a>
+                    <i class="fa fa-angle-right fa-lg fa-fw text-color"></i>
+                    <a href="/2019/04/12/sql-yu-ju-you-hua/" class="b-link-green">MySQL语句优化</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">上一篇</div>
+            <div class="card">
+                <a href="/2019/04/18/sql-yu-ju-bu-hui-hong-fa-suo-yin-de-yuan-yin/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/4.jpg" class="responsive-img" alt="SQL语句不会触发索引的原因">
+                        
+                        <span class="card-title">SQL语句不会触发索引的原因</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary">1、查询谓词没有使用索引的主要边界,换句话说就是select *，可能会导致不走索引。比如，你查询的是SELECT * FROM T WHERE Y=XXX;
+假如你的T表上有一个包含Y值的组合索引，但是优化器会认为需要一行行的扫描会更有效</div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-04-18
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/数据库/" class="post-category" target="_blank">
+                                    数据库
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/MySQL优化/" target="_blank">
+                        <span class="chip bg-color">MySQL优化</span>
+                    </a>
+                    
+                    <a href="/tags/SQL优化/" target="_blank">
+                        <span class="chip bg-color">SQL优化</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">下一篇</div>
+            <div class="card">
+                <a href="/2019/04/11/sql-zong-he-you-hua/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/4.jpg" class="responsive-img" alt="MySQL综合优化">
+                        
+                        <span class="card-title">MySQL综合优化</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary">MySQL如何实现优化？1、数据库设计要合理（3F）1F 原子约束当关系模式R的所有属性都不能在分解为更基本的数据单位时，称R是满足第一范式的，简记为1NF。简单的来说就是列无法再进行分割。
+ ①、每一列属性都是不可再分的属性值，确保每一列</div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-04-11
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/数据库/" class="post-category" target="_blank">
+                                    数据库
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/MySQL优化/" target="_blank">
+                        <span class="chip bg-color">MySQL优化</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + '来源: Potato博客<br />'
+            + '作者: Potato<br />'
+            + '链接: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+    
+
+</main>
+
+
+<footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            本站基于
+            <a href="https://hexo.io/" target="_blank">Hexo</a> 的
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">hexo-theme-matery</a>主题搭建.
+
+            
+    		
+                <br>
+                <span id="busuanzi_container_site_pv">
+                    本站总访问量 <span id="busuanzi_value_site_pv" style="color: #fff;"></span> 次,&nbsp;
+                </span>
+    			<span id="busuanzi_container_site_uv">
+                    访客数 <span id="busuanzi_value_site_uv" style="color: #fff;"></span> 人.
+                </span>
+    		
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis"><a href="https://github.com/zhangpotato" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+    <i class="fa fa-github"></i>
+</a>
+<!-- <a href="mailto:chenjiayin1990@163.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+    <i class="fa fa-envelope-open"></i>
+</a>
+<a href="#!" class="tooltipped" data-tooltip="QQ联系我: 1181062873" data-position="top" data-delay="50">
+    <i class="fa fa-qq"></i>
+</a> -->
+<!-- 
+<a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+    <i class="fa fa-rss"></i>
+</a>
+ --></div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+<!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title">搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字" class="search-input" autofocus>
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+</script>
+<!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+<script src="/libs/materialize/js/materialize.min.js"></script>
+<script src="/libs/masonry/masonry.pkgd.min.js"></script>
+<script src="/libs/aos/aos.js"></script>
+<script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+<script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+<script src="/js/matery.js"></script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+
+    <script src="/libs/others/clicklove.js"></script>
+
+
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+
+
+</body>
+</html>

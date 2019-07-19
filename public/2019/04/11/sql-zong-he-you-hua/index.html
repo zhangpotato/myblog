@@ -1,0 +1,1107 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta name="keywords" content="MySQL综合优化, Potato博客">
+    <meta name="description" content="MySQL如何实现优化？1、数据库设计要合理（3F）1F 原子约束当关系模式R的所有属性都不能在分解为更基本的数据单位时，称R是满足第一范式的，简记为1NF。简单的来说就是列无法再进行分割。
+ ①、每一列属性都是不可再分的属性值，确保每一列">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>MySQL综合优化 | Potato博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+</head>
+
+<body>
+
+<header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="container">
+            <div class="nav-wrapper">
+                <div class="brand-logo">
+                    <a href="/" class="waves-effect waves-light">
+                        
+                        <img src="/medias/logo.png" class="logo-img hide-on-small-only">
+                        
+                        <span class="logo-span">Potato博客</span>
+                    </a>
+                </div>
+                
+
+<a href="#" data-activates="mobile-nav" class="button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>首页</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>标签</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>分类</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>关于</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li>
+        <a id="toggleSearch" class="waves-effect waves-light">
+            <i id="searchIcon" class="mdi-action-search"></i>
+        </a>
+    </li>
+
+</ul>
+
+<div class="side-nav" id="mobile-nav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">Potato博客</div>
+        <div class="logo-desc">
+            
+            Take one small step each day.
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                关于
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/zhangpotato" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+
+    <div class="social-link"><a href="https://github.com/zhangpotato" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+    <i class="fa fa-github"></i>
+</a>
+<!-- <a href="mailto:chenjiayin1990@163.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+    <i class="fa fa-envelope-open"></i>
+</a>
+<a href="#!" class="tooltipped" data-tooltip="QQ联系我: 1181062873" data-position="top" data-delay="50">
+    <i class="fa fa-qq"></i>
+</a> -->
+<!-- 
+<a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+    <i class="fa fa-rss"></i>
+</a>
+ --></div>
+</div>
+
+            </div>
+        </div>
+
+        
+        <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/zhangpotato" class="github-corner tooltipped hide-on-med-and-down" target="_blank" data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewbox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/>
+    </svg>
+</a>
+        
+    </nav>
+</header>
+
+
+
+
+
+<div class="bg-cover post-cover" style="background-image: url('/medias/featureimages/4.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        MySQL综合优化
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="container content">
+
+    
+    <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            
+            <div class="article-tag">
+                
+                <a href="/tags/MySQL优化/" target="_blank">
+                    <span class="chip bg-color">MySQL优化</span>
+                </a>
+                
+            </div>
+            
+            <div class="post-info">
+                
+                <span class="post-cate">
+                <!--<span class="post-cate" style="margin-right: 0px">-->
+                    <i class="fa fa-bookmark fa-fw icon-category"></i>
+                    
+                    <a href="/categories/数据库/" class="post-category" target="_blank">
+                        数据库
+                    </a>
+                    
+                </span>
+                
+
+                <span class="post-date">
+                    <i class="fa fa-clock-o fa-fw"></i>2019-04-11
+                </span>
+				
+				
+                    <span id="busuanzi_container_page_pv" class="post-read">
+                    <i class="fa fa-eye fa-fw"></i>阅读 <span id="busuanzi_value_page_pv"></span>
+				
+            </span></div>
+        </div>
+        <hr>
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h2 id="MySQL如何实现优化？"><a href="#MySQL如何实现优化？" class="headerlink" title="MySQL如何实现优化？"></a><strong>MySQL如何实现优化？</strong></h2><h3 id="1、数据库设计要合理（3F）"><a href="#1、数据库设计要合理（3F）" class="headerlink" title="1、数据库设计要合理（3F）"></a>1、<strong>数据库设计要合理</strong>（3F）</h3><h4 id="1F-原子约束"><a href="#1F-原子约束" class="headerlink" title="1F 原子约束"></a>1F <strong>原子约束</strong></h4><p>当关系模式R的所有属性都不能在分解为更基本的数据单位时，称R是满足第一范式的，简记为1NF。简单的来说就是列无法再进行分割。</p>
+<p> ①、每一列属性都是不可再分的属性值，确保每一列的原子性</p>
+<p> ②、两列的属性相近或相似或一样，尽量合并属性一样的列，确保不产生冗余数据。</p>
+<h4 id="2F保证唯一性"><a href="#2F保证唯一性" class="headerlink" title="2F保证唯一性"></a>2F<strong>保证唯一性</strong></h4><p>主键 （不能用id作为订单号码，订单号码利用分布式锁提前将订单号生成好，存放在redis中，需要的话直接去redis中获取 ）</p>
+<p>每一行的数据只能与其中一列相关，即一行数据只做一件事。只要数据列中出现数据重复，就要把表拆分开来。</p>
+<h4 id="3F不要有冗余数据"><a href="#3F不要有冗余数据" class="headerlink" title="3F不要有冗余数据"></a>3F<strong>不要有冗余数据</strong></h4><p>id    name    address    classid    classname</p>
+<p>1    a        北京        1        chinese</p>
+<p>2    b        北京        2        math</p>
+<p>数据不能存在传递关系，即每个属性都跟主键有直接关系而不是间接关系。像：a–&gt;b–&gt;c  属性之间含有这样的关系，是不符合第三范式的。</p>
+<p>比如Student表（学号，姓名，年龄，性别，所在院校，院校地址，院校电话）</p>
+<p>这样一个表结构，就存在上述关系。 学号–&gt; 所在院校 –&gt; (院校地址，院校电话)</p>
+<p>这样的表结构，我们应该拆开来，如下。</p>
+<p>（学号，姓名，年龄，性别，所在院校）–（所在院校，院校地址，院校电话）</p>
+<h3 id="2、添加索引"><a href="#2、添加索引" class="headerlink" title="2、添加索引"></a>2、<strong>添加索引</strong></h3><h5 id="①索引的定义"><a href="#①索引的定义" class="headerlink" title="①索引的定义"></a><strong>①索引的定义</strong></h5><p>　　数据库索引好比是一本书前面的目录，能加快数据库的查询速度。<a href="http://baike.baidu.com/view/262241.htm" target="_blank" rel="noopener">索引</a>是对数据库表中一个或多个列（例如，employee 表的姓氏 (lname) 列）的值进行排序的结构。如果想按特定职员的姓来查找他或她，则与在表中搜索所有的行相比，索引有助于更快地获取信息。</p>
+<h5 id="②建立索引的优缺点："><a href="#②建立索引的优缺点：" class="headerlink" title="②建立索引的优缺点："></a><strong>②建立索引的优缺点：</strong></h5><h6 id="优点："><a href="#优点：" class="headerlink" title="优点："></a><strong>优点</strong>：</h6><p>​    1.大大加快数据的检索速度;<br>​    2.创建唯一性索引，保证数据库表中每一行数据的唯一性;<br>​    3.加速表和表之间的连接;<br>​    4.在使用分组和排序子句进行数据检索时，可以显著减少查询中分组和排序的时间。</p>
+<h6 id="缺点："><a href="#缺点：" class="headerlink" title="缺点："></a><strong>缺点</strong>：</h6><p>　　1.索引需要占用数据表以外的物理存储空间</p>
+<p>　　2.创建索引和维护索引要花费一定的时间</p>
+<p>　　3.当对表进行更新操作时，索引需要被重建，这样降低了数据的维护速度。</p>
+<h5 id="③、索引类型"><a href="#③、索引类型" class="headerlink" title="③、索引类型"></a><strong>③、索引类型</strong></h5><p>索引分为聚簇索引和非聚簇索引两种，聚簇索引是按照数据存放的物理位置为顺序的，而非聚簇索引就不一样了；聚簇索引能提高多行检索的速度，而非聚簇索引对于单行的检索很快。</p>
+<h6 id="主键索引："><a href="#主键索引：" class="headerlink" title="主键索引："></a><strong>主键索引</strong>：</h6><p>primary key    数据库表经常有一列或列组合，其值唯一标识表中的每一行，该列称为表的主键。   在数据库关系图中为表定义主键将自动创建主键索引，主键索引是唯一索引的特定类型。该索引要求主键中的每个值都唯一。当在查询中使用主键索引时，它还允许对数据的快速访问。 </p>
+<h6 id="唯一索引："><a href="#唯一索引：" class="headerlink" title="唯一索引："></a><strong>唯一索引</strong>：</h6><p>UNIQUE   表明此索引的每一个索引值只对应唯一的数据记录，对于单列惟一性索引，这保证单列不包含重复的值。</p>
+<h6 id="普通索引："><a href="#普通索引：" class="headerlink" title="普通索引："></a><strong>普通索引：</strong></h6><p>这是最基本的索引，它没有任何限制，比如上文中为title字段创建的索引就是一个普通索引，MyIASM中默认的BTREE类型的索引，也是我们大多数情况下用到的索引。</p>
+<h6 id="全文索引"><a href="#全文索引" class="headerlink" title="全文索引"></a><strong>全文索引</strong></h6><p>FULLTEXT    索引仅可用于 MyISAM 表；他们可以从CHAR、VARCHAR或TEXT列中作为CREATE TABLE语句的一部分被创建，或是随后使用ALTER TABLE 或CREATE INDEX被添加。对于较大的数据集，将你的资料输入一个没有FULLTEXT索引的表中，然后创建索引，其速度比把资料输入现有FULLTEXT索引的速度更为快。不过切记对于大容量的数据表，生成全文索引是一个非常消耗时间非常消耗硬盘空间的做法。</p>
+<h6 id="组合索引"><a href="#组合索引" class="headerlink" title="组合索引"></a><strong>组合索引</strong></h6><p>平时用的SQL查询语句一般都有比较多的限制条件，所以为了进一步榨取MySQL的效率，就要考虑建立组合索引。例如上表中针对title和time建立一个组合索引：ALTER TABLE article ADD INDEX index_titme_time (title(50),time(10))。建立这样的组合索引，其实是相当于分别建立了下面两组组合索引：</p>
+<h4 id="MySQL的数据结构"><a href="#MySQL的数据结构" class="headerlink" title="MySQL的数据结构"></a><strong>MySQL的数据结构</strong></h4><h5 id="B树"><a href="#B树" class="headerlink" title="B树"></a><strong>B树</strong></h5><p>B树（B-tree）是一种树状数据结构，它能够存储数据、对其进行排序并允许以O(log n)的时间复杂度运行进行查找、顺序读取、插入和删除的数据结构。B树，概括来说是一个节点可以拥有多于2个子节点的二叉查找树。与自平衡二叉查找树不同，B-树为系统最优化<strong>大块数据的读和写操作</strong>。B-tree算法减少定位记录时所经历的中间过程，从而加快存取速度。普遍运用在<strong>数据库</strong>和<strong>文件系统</strong>。</p>
+<p><strong>B 树</strong>可以看作是对2-3查找树的一种扩展，即他允许每个节点有M-1个子节点。</p>
+<ul>
+<li>根节点至少有两个子节点</li>
+<li>每个节点有M-1个key，并且以升序排列</li>
+<li>位于M-1和M key的子节点的值位于M-1 和M key对应的Value之间</li>
+<li>其它节点至少有M/2个子节点</li>
+<li>B Tree(B-):2-3树，每个节点上最多保留3个关键码，超过三个则取从小到大第2个位置的关键码，口诀取2留3</li>
+</ul>
+<p>下图是一个M=4 阶的B树:</p>
+<p><img src="/images/MySQL优化/1.png" alt=""></p>
+<p>可以看到B树是2-3树的一种扩展，他允许一个节点有多于2个的元素。</p>
+<p>B树的插入及平衡化操作和2-3树很相似，这里就不介绍了。下面是往B树中依次插入</p>
+<p><strong>6 10 4 14 5 11 15 3 2 12 1 7 8 8 6 3 6 21 5 15 15 6 32 23 45 65 7 8 6 5 4</strong>     的演示动画：</p>
+<p><img src="/images/MySQL优化/2.gif" alt=""></p>
+<h5 id="B-树"><a href="#B-树" class="headerlink" title="B+树"></a><strong>B+树</strong></h5><p>​    我们经常听到B+树就是这个概念，用这个树的目的和红黑树差不多，也是为了尽量保持树的平衡，当然红黑树是二叉树，但B+树就不是二叉树了，节点下面可以有多个子节点，数据库开发商会设置子节点数的一个最大值，这个值不会太小，所以B+树一般来说比较矮胖，而红黑树就比较瘦高了。<br>关于B+树的插入，删除，会涉及到一些算法以保持树的平衡，这里就不详述了。ORACLE的默认索引就是这种结构的。<br>如果经常需要同时对两个字段进行AND查询,那么使用两个单独索引不如建立一个复合索引，因为两个单独索引通常数据库只能使用其中一个，而使用复合索引因为索引本身就对应到两个字段上的，效率会有很大提高。</p>
+<p><strong>B+</strong>树是对B树的一种变形树，它与B树的差异在于：</p>
+<ul>
+<li>有k个子结点的结点必然有k个关键码；</li>
+<li>非叶结点仅具有索引作用，跟记录有关的信息均存放在叶结点中。</li>
+<li>树的所有叶结点构成一个有序链表，可以按照关键码排序的次序遍历全部记录。</li>
+</ul>
+<p>如下图，是一个B+树:</p>
+<p><img src="/images/MySQL优化/3.png" alt=""></p>
+<p><img src="/images/MySQL优化/4.gif" alt=""></p>
+<h3 id="3、分表分库技术"><a href="#3、分表分库技术" class="headerlink" title="3、分表分库技术"></a>3、<strong>分表分库技术</strong></h3><p>取模分表、水平分割、垂直分割</p>
+<h4 id="什么是分库分表？"><a href="#什么是分库分表？" class="headerlink" title="什么是分库分表？"></a><strong>什么是分库分表</strong>？</h4><p>顾名思义，分库分表就是按照一定的规则，对原有的数据库和表进行拆分，把原本存储于一个库的数据分块存储到多个库上，把原本存储于一个表的数据分块存储到多个表上。</p>
+<h4 id="为什么要分库分表？"><a href="#为什么要分库分表？" class="headerlink" title="为什么要分库分表？"></a><strong>为什么要分库分表</strong>？</h4><p>随着时间和业务的发展，数据库中的数据量增长是不可控的，库和表中的数据会越来越大，随之带来的是更高的磁盘、IO、系统开销，甚至性能上的瓶颈，而一台服务的资源终究是有限的，因此需要对数据库和表进行拆分，从而更好的提供数据服务。</p>
+<p>可以用说用到MySQL的地方,只要数据量一大, 马上就会遇到一个问题,要分库分表. 这里引用一个问题为什么要分库分表呢?MySQL处理不了大的表吗? 其实是可以处理的大表的.我所经历的项目中单表物理上文件大小在80G多,单表记录数在5亿以上,而且这个表 属于一个非常核用的表:朋友关系表. </p>
+<p>但这种方式可以说不是一个最佳方式. 因为面临文件系统如Ext3文件系统对大于大文件处理上也有许多问题. 这个层面可以用xfs文件系统进行替换.但MySQL单表太大后有一个问题是不好解决: 表结构调整相关的操作基<br>本不在可能.所以大项在使用中都会面监着分库分表的应用. </p>
+<p>从Innodb本身来讲数据文件的Btree上只有两个锁, 叶子节点锁和子节点锁,可以想而知道,当发生页拆分或是添加新叶时都会造成表里不能写入数据.所以分库分表还就是一个比较好的选择了. </p>
+<h4 id="怎么分库分表合适呢"><a href="#怎么分库分表合适呢" class="headerlink" title="怎么分库分表合适呢?"></a><strong>怎么分库分表合适呢</strong>?</h4><p>经测试在单表1000万条记录一下,写入读取性能是比较好的. 这样在留点buffer,那么单表全是数据字型的保持在800万条记录以下, 有字符型的单表保持在500万以下. </p>
+<p>如果按 100库100表来规划,如用户业务: 500万<em>100</em>100 = 50000000万 = 5000亿记录. </p>
+<p>心里有一个数了,按业务做规划还是比较容易的.</p>
+<p>分布式数据库架构–排序、分页、分组、实现</p>
+<h4 id="什么时候分库？"><a href="#什么时候分库？" class="headerlink" title="什么时候分库？"></a><strong>什么时候分库</strong>？</h4><p>电商项目将一个项目进行拆分，拆成多个小项目，每个小项目都有自己单独的数据库，互不影响（垂直分割订单数据库）</p>
+<h4 id="什么时候分表？"><a href="#什么时候分表？" class="headerlink" title="什么时候分表？"></a><strong>什么时候分表</strong>？</h4><p>对于某网站平台的数据库表-公司表，数据量很大，这种能预估出来的大数据量表，我们就事先分出个N个表，这个N是多少，根据实际情况而定。</p>
+<h4 id="为什么分表？"><a href="#为什么分表？" class="headerlink" title="为什么分表？"></a><strong>为什么分表</strong>？</h4><p>当一张表的数据达到几千万时，你查询一次所花的时间会变多，如果有联合查询的话，我想有可能会死在那儿了。分表的目的就在于此，减小数据库的负担，缩短查询时间。</p>
+<p>某网站现在的数据量至多是5000万条，可以设计每张表容纳的数据量是500万条，也就是拆分成10张表，</p>
+<p>那么如何判断某张表的数据是否容量已满呢？可以在程序段对于要新增数据的表，在插入前先做统计表记录数量的操作，当&lt;500万条数据，就直接插入，当已经到达阀值，可以在程序段新创建数据库表（或者已经事先创建好），再执行插入操作。</p>
+<h5 id="垂直分库-分表"><a href="#垂直分库-分表" class="headerlink" title="垂直分库/分表"></a><strong>垂直分库</strong>/分表</h5><p>如果把业务切割得足够独立，那把不同业务的数据放到不同的数据库服务器将是一个不错的方案，而且万一其中一个业务崩溃了也不会影响其他业务的正常进行，并且也起到了负载分流的作用，大大提升了数据库的吞吐能力。经过垂直分区后的数据库架构图如下：</p>
+<p><img src="/images/MySQL优化/5.jpg" alt=""></p>
+<p>然而，尽管业务之间已经足够独立了，但是有些业务之间或多或少总会有点联系，如用户，基本上都会和每个业务相关联，况且这种分区方式，也不能解决单张表数据量暴涨的问题，因此可以尝试水平分割</p>
+<h6 id="优点：-1"><a href="#优点：-1" class="headerlink" title="优点："></a><strong>优点：</strong></h6><ol>
+<li>拆分后业务清晰，达到专库专用。</li>
+<li>可以实现热数据和冷数据的分离，将不经常变化的数据和变动较大的数据分散再不同的库/表中。</li>
+<li>便于维护</li>
+</ol>
+<h6 id="缺点：-1"><a href="#缺点：-1" class="headerlink" title="缺点："></a><strong>缺点：</strong></h6><ol>
+<li>不解决数据量大带来的性能损耗，读写压力依旧很大</li>
+<li>不同的业务无法跨库关联（join），只能通过业务来关联</li>
+</ol>
+<h5 id="水平分库-分表"><a href="#水平分库-分表" class="headerlink" title="水平分库/分表"></a><strong>水平分库/分表</strong></h5><p>这是一个非常好的思路，将用户按一定规则（按id哈希）分组，并把该组用户的数据存储到一个数据库分片中，即一个sharding，这样随着用户数量的增加，只要简单地配置一台服务器即可，原理图如下：</p>
+<p><img src="/images/MySQL优化/6.jpg" alt=""></p>
+<p>如何来确定某个用户所在的shard呢，可以建一张用户和shard对应的数据表，每次请求先从这张表找用户的shard id，再从对应shard中查询相关数据，如下图所示：</p>
+<p><img src="/images/MySQL优化/7.jpg" alt=""></p>
+<h6 id="优点：-2"><a href="#优点：-2" class="headerlink" title="优点："></a><strong>优点：</strong></h6><ol>
+<li>单库（表）的数据量得以减少，提高性能</li>
+<li>提高了系统的稳定性和负载能力</li>
+<li>切分出的表结构相同，程序改动较少</li>
+</ol>
+<h6 id="缺点：-2"><a href="#缺点：-2" class="headerlink" title="缺点："></a><strong>缺点：</strong></h6><ol>
+<li>拆分规则较难抽象</li>
+<li>数据分片在扩容时需要迁移</li>
+<li>维护量增大</li>
+<li>依然存在跨库无法join等问题，同时涉及分布式事务，数据一致性等问题。</li>
+</ol>
+<h4 id="分库-分表分类"><a href="#分库-分表分类" class="headerlink" title="分库/分表分类"></a><strong>分库/分表分类</strong></h4><h5 id="单库单表"><a href="#单库单表" class="headerlink" title="单库单表"></a><strong>单库单表</strong></h5><p>单库单表是最常见的数据库设计，例如，有一张用户(user)表放在数据库db中，所有的用户都可以在db库中的user表中查到。 </p>
+<h5 id="单库多表"><a href="#单库多表" class="headerlink" title="单库多表"></a><strong>单库多表</strong></h5><p>随着用户数量的增加，user表的数据量会越来越大，当数据量达到一定程度的时候对user表的查询会渐渐的变慢，从而影响整个DB的性能。如果使用mysql, 还有一个更严重的问题是，当需要添加一列的时候，mysql会锁表，期间所有的读写操作只能等待。 </p>
+<p>可以通过某种方式将user进行水平的切分，产生两个表结构完全一样的user_0000,user_0001等表，user_0000 + user_0001 + …的数据刚好是一份完整的数据。 </p>
+<h5 id="多库多表"><a href="#多库多表" class="headerlink" title="多库多表"></a><strong>多库多表</strong></h5><p>随着数据量增加也许单台DB的存储空间不够，随着查询量的增加单台数据库服务器已经没办法支撑。这个时候可以再对数据库进行水平区分。 </p>
+<h4 id="分库分表规则"><a href="#分库分表规则" class="headerlink" title="分库分表规则"></a><strong>分库分表规则</strong></h4><p> 设计表的时候需要确定此表按照什么样的规则进行分库分表。例如，当有新用户时，程序得确定将此用户信息添加到哪个表中；同理，当登录的时候我们得通过用户的账号找到数据库中对应的记录，所有的这些都需要按照某一规则进行。<br>路由 </p>
+<p>通过分库分表规则查找到对应的表和库的过程。如分库分表的规则是user_id mod 4的方式，当用户新注册了一个账号，账号id的123,我们可以通过id mod 4的方式确定此账号应该保存到User_0003表中。当用户123登录的时候，我们通过123 mod 4后确定记录在User_0003中。 </p>
+<h4 id="分库分表产生的问题，及注意事项"><a href="#分库分表产生的问题，及注意事项" class="headerlink" title="分库分表产生的问题，及注意事项"></a><strong>分库分表产生的问题，及注意事项</strong></h4><h5 id="分库分表维度的问题"><a href="#分库分表维度的问题" class="headerlink" title="分库分表维度的问题"></a><strong>分库分表维度的问题</strong></h5><p>假如用户购买了商品,需要将交易记录保存取来，如果按照用户的纬度分表，则每个用户的交易记录都保存在同一表中，所以很快很方便的查找到某用户的 购买情况，但是某商品被购买的情况则很有可能分布在多张表中，查找起来比较麻烦。反之，按照商品维度分表，可以很方便的查找到此商品的购买情况，但要查找 到买人的交易记录比较麻烦。 </p>
+<p>所以常见的解决方式有： </p>
+<ul>
+<li>通过扫表的方式解决，此方法基本不可能，效率太低了。</li>
+<li>记录两份数据，一份按照用户纬度分表，一份按照商品维度分表。</li>
+<li>通过搜索引擎解决，但如果实时性要求很高，又得关系到实时搜索。 </li>
+</ul>
+<h5 id="联合查询的问题"><a href="#联合查询的问题" class="headerlink" title="联合查询的问题"></a><strong>联合查询的问题</strong></h5><p>联合查询基本不可能，因为关联的表有可能不在同一数据库中。 </p>
+<h5 id="避免跨库事务"><a href="#避免跨库事务" class="headerlink" title="避免跨库事务"></a><strong>避免跨库事务</strong></h5><p>避免在一个事务中修改db0中的表的时候同时修改db1中的表，一个是操作起来更复杂，效率也会有一定影响。 </p>
+<h5 id="尽量把同一组数据放到同一DB服务器上"><a href="#尽量把同一组数据放到同一DB服务器上" class="headerlink" title="尽量把同一组数据放到同一DB服务器上"></a><strong>尽量把同一组数据放到同一</strong>DB服务器上</h5><p>例如将卖家a的商品和交易信息都放到db0中，当db1挂了的时候，卖家a相关的东西可以正常使用。也就是说避免数据库中的数据依赖另一数据库中的数据。 </p>
+<h5 id="一主多备"><a href="#一主多备" class="headerlink" title="一主多备"></a><strong>一主多备</strong></h5><p>在实际的应用中，绝大部分情况都是读远大于写。Mysql提供了读写分离的机制，所有的写操作都必须对应到Master，读操作可以在 Master和Slave机器上进行，Slave与Master的结构完全一样，一个Master可以有多个Slave,甚至Slave下还可以挂 Slave,通过此方式可以有效的提高DB集群的 QPS.                                                       </p>
+<p>所有的写操作都是先在Master上操作，然后同步更新到Slave上，所以从Master同步到Slave机器有一定的延迟，当系统很繁忙的时候，延迟问题会更加严重，Slave机器数量的增加也会使这个问题更加严重。<br>此外，可以看出Master是集群的瓶颈，当写操作过多，会严重影响到Master的稳定性，如果Master挂掉，整个集群都将不能正常工作。<br>所以</p>
+<ul>
+<li>当读压力很大的时候，可以考虑添加Slave机器的分式解决，但是当Slave机器达到一定的数量就得考虑分库了。</li>
+<li>当写压力很大的时候，就必须得进行分库操作。 </li>
+</ul>
+<h3 id="4、读写分离"><a href="#4、读写分离" class="headerlink" title="4、读写分离"></a><strong>4、读写分离</strong></h3><p>MySQL的主从复制解决了数据库的读写分离，并很好的提升了读的性能</p>
+<p><img src="/images/MySQL优化/8.jpg" alt=""></p>
+<p>其主从复制的过程如下图所示：</p>
+<p><img src="/images/MySQL优化/9.jpg" alt=""></p>
+<p>主从复制也带来其他一系列性能瓶颈问题：</p>
+<ol>
+<li>写入无法扩展</li>
+<li>写入无法缓存</li>
+<li>复制延时</li>
+<li>锁表率上升</li>
+<li>表变大，缓存率下降</li>
+</ol>
+<h5 id="使用Sharding-JDBC进行分库分表"><a href="#使用Sharding-JDBC进行分库分表" class="headerlink" title="使用Sharding-JDBC进行分库分表"></a><strong>使用Sharding-JDBC进行分库分表</strong></h5><h6 id="简介"><a href="#简介" class="headerlink" title="简介"></a><strong>简介</strong></h6><p>Sharding-JDBC是一个开源的分布式数据库中间件，它无需额外部署和依赖，完全兼容JDBC和各种ORM框架。Sharding-JDBC作为面向开发的微服务云原生基础类库，完整的实现了分库分表、读写分离和分布式主键功能，并初步实现了柔性事务。关于sj的详细配置和使用方法请参见<a href="https://link.jianshu.com?t=http%3A%2F%2Fshardingsphere.io%2Fdocs_cn%2F00-overview%2F" target="_blank" rel="noopener">官方文档</a></p>
+<h6 id="配置"><a href="#配置" class="headerlink" title="配置"></a><strong>配置</strong></h6><p>Sharing-JDBC的springboot starter对springboot 2.0还不支持。我也是配置完项目启动失败才发现这个issue，懒得切换版本就暂且不使用starter pom吧，直接使用编程式配置。</p>
+<h6 id="准备"><a href="#准备" class="headerlink" title="准备"></a><strong>准备</strong></h6><p>本Demo中使用的两个数据源是db0和db1，每个数据源之中包含了两组表t_order_0和t_order_1，t_order_item_0和t_order_item_1 。和官方文档的demo一致，这两组表的建表语句为：</p>
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">CREATE</span> <span class="token keyword">TABLE</span> <span class="token keyword">IF</span> <span class="token operator">NOT</span> <span class="token keyword">EXISTS</span> t_order_x <span class="token punctuation">(</span>
+  order_id <span class="token keyword">INT</span> <span class="token operator">NOT</span> <span class="token boolean">NULL</span><span class="token punctuation">,</span>
+  user_id  <span class="token keyword">INT</span> <span class="token operator">NOT</span> <span class="token boolean">NULL</span><span class="token punctuation">,</span>
+  <span class="token keyword">PRIMARY</span> <span class="token keyword">KEY</span> <span class="token punctuation">(</span>order_id<span class="token punctuation">)</span>
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">CREATE</span> <span class="token keyword">TABLE</span> <span class="token keyword">IF</span> <span class="token operator">NOT</span> <span class="token keyword">EXISTS</span> t_order_item_x <span class="token punctuation">(</span>
+  item_id  <span class="token keyword">INT</span> <span class="token operator">NOT</span> <span class="token boolean">NULL</span><span class="token punctuation">,</span>
+  order_id <span class="token keyword">INT</span> <span class="token operator">NOT</span> <span class="token boolean">NULL</span><span class="token punctuation">,</span>
+  user_id  <span class="token keyword">INT</span> <span class="token operator">NOT</span> <span class="token boolean">NULL</span><span class="token punctuation">,</span>
+  <span class="token keyword">PRIMARY</span> <span class="token keyword">KEY</span> <span class="token punctuation">(</span>item_id<span class="token punctuation">)</span>
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>逻辑结构如下：</p>
+<pre class=" language-sh"><code class="language-sh">db0
+  ├── t_order_0 
+  └── t_order_1 
+db1
+  ├── t_order_0 
+  └── t_order_1
+</code></pre>
+<p>首先引入依赖</p>
+<pre><code>&lt;dependency&gt;
+       &lt;groupId&gt;io.shardingjdbc&lt;/groupId&gt;
+       &lt;artifactId&gt;sharding-jdbc-core&lt;/artifactId&gt;
+       &lt;version&gt;2.0.3&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><p>配置表分片策略</p>
+<pre class=" language-java"><code class="language-java"> <span class="token annotation punctuation">@Bean</span>
+    TableRuleConfiguration <span class="token function">getOrderTableRuleConfiguration</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        TableRuleConfiguration orderTableRuleConfig <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TableRuleConfiguration</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment" spellcheck="true">//配置逻辑表名，并非数据库中真实存在的表名，而是sql中使用的那个，不受分片策略而改变.  </span>
+        <span class="token comment" spellcheck="true">//例如：select * frpm t_order where user_id = xxx</span>
+        orderTableRuleConfig<span class="token punctuation">.</span><span class="token function">setLogicTable</span><span class="token punctuation">(</span><span class="token string">"t_order"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment" spellcheck="true">//配置真实的数据节点，即数据库中真实存在的节点，由数据源名 + 表名组成</span>
+        <span class="token comment" spellcheck="true">//${} 是一个groovy表达式，[]表示枚举，{...}表示一个范围。  </span>
+        <span class="token comment" spellcheck="true">//整个inline表达式最终会是一个笛卡尔积，表示ds_0.t_order_0. ds_0.t_order_1</span>
+        <span class="token comment" spellcheck="true">// ds_1.t_order_0. ds_1.t_order_0</span>
+        orderTableRuleConfig<span class="token punctuation">.</span><span class="token function">setActualDataNodes</span><span class="token punctuation">(</span><span class="token string">"ds_${0..1}.t_order_${0..1}"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment" spellcheck="true">//主键生成列，默认的主键生成算法是snowflake</span>
+        orderTableRuleConfig<span class="token punctuation">.</span><span class="token function">setKeyGeneratorColumnName</span><span class="token punctuation">(</span><span class="token string">"order_id"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+       <span class="token comment" spellcheck="true">//设置分片策略，这里简单起见直接取模，也可以使用自定义算法来实现分片规则</span>
+        orderTableRuleConfig<span class="token punctuation">.</span><span class="token function">setTableShardingStrategyConfig</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">InlineShardingStrategyConfiguration</span><span class="token punctuation">(</span><span class="token string">"order_id"</span><span class="token punctuation">,</span><span class="token string">"t_order_${order_id % 2}"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> orderTableRuleConfig<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Bean</span>
+    TableRuleConfiguration <span class="token function">getOrderItemTableRuleConfiguration</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        TableRuleConfiguration orderItemTableRuleConfig <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TableRuleConfiguration</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        orderItemTableRuleConfig<span class="token punctuation">.</span><span class="token function">setLogicTable</span><span class="token punctuation">(</span><span class="token string">"t_order_item"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        orderItemTableRuleConfig<span class="token punctuation">.</span><span class="token function">setActualDataNodes</span><span class="token punctuation">(</span><span class="token string">"ds_${0..1}.t_order_item_${0..1}"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        orderItemTableRuleConfig<span class="token punctuation">.</span><span class="token function">setTableShardingStrategyConfig</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">InlineShardingStrategyConfiguration</span><span class="token punctuation">(</span><span class="token string">"order_item_id"</span><span class="token punctuation">,</span><span class="token string">"t_order_item_${order_id % 2}"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> orderItemTableRuleConfig<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+</code></pre>
+<p>配置数据源</p>
+<pre class=" language-java"><code class="language-java">  <span class="token keyword">private</span> Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span> DataSource<span class="token operator">></span> <span class="token function">createDataSourceMap</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span> DataSource<span class="token operator">></span> result <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        result<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"ds_0"</span><span class="token punctuation">,</span> <span class="token function">createDataSource</span><span class="token punctuation">(</span><span class="token string">"ds_0"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        result<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"ds_1"</span><span class="token punctuation">,</span> <span class="token function">createDataSource</span><span class="token punctuation">(</span><span class="token string">"ds_1"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> result<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">private</span> DataSource <span class="token function">createDataSource</span><span class="token punctuation">(</span><span class="token keyword">final</span> String dataSourceName<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        DruidDataSource result <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">DruidDataSource</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        result<span class="token punctuation">.</span><span class="token function">setInitialSize</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        result<span class="token punctuation">.</span><span class="token function">setMinIdle</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        result<span class="token punctuation">.</span><span class="token function">setMaxActive</span><span class="token punctuation">(</span><span class="token number">50</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        result<span class="token punctuation">.</span><span class="token function">setDriverClassName</span><span class="token punctuation">(</span>com<span class="token punctuation">.</span>mysql<span class="token punctuation">.</span>jdbc<span class="token punctuation">.</span>Driver<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        result<span class="token punctuation">.</span><span class="token function">setUrl</span><span class="token punctuation">(</span>String<span class="token punctuation">.</span><span class="token function">format</span><span class="token punctuation">(</span><span class="token string">"jdbc:mysql://localhost:3306/%s?useSSL=false"</span><span class="token punctuation">,</span> dataSourceName<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        result<span class="token punctuation">.</span><span class="token function">setUsername</span><span class="token punctuation">(</span><span class="token string">"root"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        result<span class="token punctuation">.</span><span class="token function">setPassword</span><span class="token punctuation">(</span><span class="token string">""</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> result<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+   <span class="token annotation punctuation">@Bean</span>
+    DataSource <span class="token function">getShardingDataSource</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> SQLException <span class="token punctuation">{</span>
+        ShardingRuleConfiguration shardingRuleConfig <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ShardingRuleConfiguration</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        shardingRuleConfig<span class="token punctuation">.</span><span class="token function">getTableRuleConfigs</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token function">getOrderTableRuleConfiguration</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        shardingRuleConfig<span class="token punctuation">.</span><span class="token function">getTableRuleConfigs</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token function">getOrderItemTableRuleConfiguration</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        shardingRuleConfig<span class="token punctuation">.</span><span class="token function">getBindingTableGroups</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"t_order, t_order_item"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        shardingRuleConfig<span class="token punctuation">.</span><span class="token function">setDefaultDatabaseShardingStrategyConfig</span><span class="token punctuation">(</span>  
+        <span class="token keyword">new</span> <span class="token class-name">InlineShardingStrategyConfiguration</span><span class="token punctuation">(</span><span class="token string">"user_id"</span><span class="token punctuation">,</span> <span class="token string">"ds_${user_id % 2}"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        shardingRuleConfig<span class="token punctuation">.</span><span class="token function">setDefaultTableShardingStrategyConfig</span><span class="token punctuation">(</span>  
+        <span class="token keyword">new</span> <span class="token class-name">InlineShardingStrategyConfiguration</span><span class="token punctuation">(</span><span class="token string">"order_id"</span><span class="token punctuation">,</span> <span class="token string">"t_order_${order_id % 2}"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> ShardingDataSourceFactory<span class="token punctuation">.</span><span class="token function">createDataSource</span><span class="token punctuation">(</span><span class="token function">createDataSourceMap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
+        shardingRuleConfig<span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> null<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+</code></pre>
+<h6 id="结果"><a href="#结果" class="headerlink" title="结果"></a><strong>结果</strong></h6><p>使用junittest插入一条记录，查看分片结果：</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@SpringBootTest</span>
+<span class="token annotation punctuation">@RunWith</span><span class="token punctuation">(</span>SpringRunner<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OrderDaoTest</span> <span class="token punctuation">{</span>
+
+
+    <span class="token annotation punctuation">@Autowired</span> <span class="token keyword">private</span> OrderDao orderDao<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Test</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">addOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Order order <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Order</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        order<span class="token punctuation">.</span><span class="token function">setUserId</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        order<span class="token punctuation">.</span><span class="token function">setOrderId</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment" spellcheck="true">//insert into t_order (order_id, user_id) values(#{orderId}, #{userId})</span>
+        orderDao<span class="token punctuation">.</span><span class="token function">addOrder</span><span class="token punctuation">(</span>order<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>t_order这张表配置的分片策略是按照order_id与2取模，分库策略则是按照user_id与2取模，<br>所以最终的结果应该是插入在ds_1中的t_order_1中。</p>
+<h3 id="5、存储过程"><a href="#5、存储过程" class="headerlink" title="5、存储过程"></a><strong>5、存储过程</strong></h3><h4 id="介绍："><a href="#介绍：" class="headerlink" title="介绍："></a><strong>介绍：</strong></h4><p>就是一组SQL语句集，功能强大，可以实现一些比较复杂的逻辑功能，类似于JAVA语言中的方法；</p>
+<h4 id="优点：-3"><a href="#优点：-3" class="headerlink" title="优点："></a><strong>优点</strong>：</h4><p>①、使用了存过程，很多相似性的删除，更新，新增等操作就变得轻松了，并且以后也便于管理！<br>②、存储过程因为SQL语句已经预编绎过了，因此运行的速度比较快。<br>③、存储过程可以接受参数、输出参数、返回单个或多个结果集以及返回值。可以向程序返回错误原因。<br>④、存储过程运行比较稳定，不会有太多的错误。只要一次成功，以后都会按这个程序运行。<br>⑤、存储过程主要是在服务器上运行，减少对客户机的压力。<br>⑥、存储过程可以包含程序流、逻辑以及对数据库的查询。同时可以实体封装和隐藏了数据逻辑。<br>⑦、存储过程可以在单个存储过程中执行一系列SQL语句。<br>⑧、存储过程可以从自己的存储过程内引用其它存储过程，这可以简化一系列复杂语句。</p>
+<h3 id="6、配置MySQL最大连接数（my-ini配置）"><a href="#6、配置MySQL最大连接数（my-ini配置）" class="headerlink" title="6、配置MySQL最大连接数（my.ini配置）"></a><strong>6、配置MySQL最大连接数（my.ini配置）</strong></h3><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">--查看最大连接数</span>
+<span class="token keyword">show</span> variables <span class="token operator">like</span> <span class="token string">'%max_connections%'</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">--修改最大连接数</span>
+<span class="token keyword">set</span> <span class="token keyword">GLOBAL</span> max_connections <span class="token operator">=</span> <span class="token number">200</span><span class="token punctuation">;</span>
+</code></pre>
+<h3 id="8、随时清理碎片"><a href="#8、随时清理碎片" class="headerlink" title="8、随时清理碎片"></a><strong>8、随时清理碎片</strong></h3><h4 id="产生的原因？"><a href="#产生的原因？" class="headerlink" title="产生的原因？"></a><strong>产生的原因？</strong></h4><p>①、表的存储会出现碎片化，每当删除了一行内容，该段空间就会变为空白、被留空，而在一段时间内的大量删除操作，会使这种留空的空间变得比存储列表内容所使用的空间更大；</p>
+<p>②、当执行插入操作时，MySQL会尝试使用空白空间，但如果某个空白空间一直没有被大小合适的数据占用，仍然无法将其彻底占用，就形成了碎片；</p>
+<p>③、当MySQL对数据进行扫描时，它扫描的对象实际是列表的容量需求上限，也就是数据被写入的区域中处于峰值位置的部分；</p>
+<h4 id="如何处理？"><a href="#如何处理？" class="headerlink" title="如何处理？"></a><strong>如何处理？</strong></h4><pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">--查看表的碎片大小</span>
+<span class="token keyword">SHOW</span> <span class="token keyword">TABLE</span> <span class="token keyword">STATUS</span> <span class="token operator">LIKE</span> <span class="token string">'表名'</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">--清除表的碎片（MyISAM）    </span>
+<span class="token keyword">OPTIMIZE</span> <span class="token keyword">TABLE</span> table_name；
+<span class="token comment" spellcheck="true">--清除表的碎片（InnoDB）</span>
+ <span class="token keyword">alter</span> <span class="token keyword">table</span> 表名 <span class="token keyword">engine</span><span class="token operator">=</span><span class="token keyword">InnoDB</span>
+</code></pre>
+<h3 id="9、SQL语句优化"><a href="#9、SQL语句优化" class="headerlink" title="9、SQL语句优化"></a><strong>9、SQL语句优化</strong></h3><h4 id="关键词的执行顺序"><a href="#关键词的执行顺序" class="headerlink" title="关键词的执行顺序"></a><strong>关键词的执行顺序</strong></h4><p><strong>写的顺序：</strong>select … from… where…. group by… having… order by.. limit [offset,]<br><strong>执行顺序：</strong>from… where…group by… having…. select … order by… limit</p>
+<pre class=" language-sh"><code class="language-sh"> 下面具体分析一下查询处理的每一个阶段
+ 1 RM: 对FROM的左边的表和右边的表计算笛卡尔积。产生虚表VT1
+ 2 ON: 对虚表VT1进行ON筛选，只有那些符合<join-condition>的行才会被记录在虚表VT2中。
+ 3 JOIN： 如果指定了OUTER JOIN（比如left join、 right join），那么保留表中未匹配的行就会作为外部行添加到            虚拟表VT2中，产生虚拟表VT3, rug from子句中包含两个以上的表的话，那么就会对上一个join连接产生的结           果VT3和下一个表重复执行步骤1~3这三个步骤，一直到处理完所有的表为止。
+ 4 WHERE： 对虚拟表VT3进行WHERE条件过滤。只有符合<where-condition>的记录才会被插入到虚拟表VT4中。
+ 5 GROUP BY: 根据group by子句中的列，对VT4中的记录进行分组操作，产生VT5.
+ 6 CUBE | ROLLUP: 对表VT5进行cube或者rollup操作，产生表VT6.
+ 7 HAVING： 对虚拟表VT6应用having过滤，只有符合<having-condition>的记录才会被 插入到虚拟表VT7中。
+ 8 SELECT： 执行select操作，选择指定的列，插入到虚拟表VT8中。
+ 9 DISTINCT： 对VT8中的记录进行去重。产生虚拟表VT9.
+ 10 ORDER BY: 将虚拟表VT9中的记录按照<order_by_list>进行排序操作，产生虚拟表VT10.
+ 11 LIMIT：取出指定行的记录，产生虚拟表VT11, 并将结果返回。
+</order_by_list></having-condition></where-condition></join-condition></code></pre>
+<p><strong>详细见SQL语句优化文档</strong></p>
+<h3 id="10、执行计划"><a href="#10、执行计划" class="headerlink" title="10、执行计划"></a>10、执行计划</h3><h4 id="定位慢查询"><a href="#定位慢查询" class="headerlink" title="定位慢查询"></a><strong>定位慢查询</strong></h4><h5 id="什么是慢查询？"><a href="#什么是慢查询？" class="headerlink" title="什么是慢查询？"></a><strong>什么是慢查询？</strong></h5><p>mysql默认sql语句在10S内没有返回，则被认为是慢查询</p>
+<p>慢查询都有日志记录</p>
+<p>使用show status查看mysql服务器状态信息</p>
+<h5 id="命令："><a href="#命令：" class="headerlink" title="命令："></a><strong>命令：</strong></h5><p>查看数据库启动时间：show status like ‘uptime’;</p>
+<p>显示数据可的查询、更新、添加、删除的次数：show status like ‘com_select’,……</p>
+<p>显示数据库的连接数：show status like ‘connections’;</p>
+<p>显示慢查询次数：show status like ‘slow_queries’;</p>
+<p>默认情况mysql不会记录慢查询的日志</p>
+<p> 步骤：停止mysql服务-&gt;进入mysql目录-&gt;进入cmd-&gt;输入 mysqld.exe –safe-mode –slow-query-log-&gt;不要关闭cmd界面</p>
+<p>查看慢查询log日志：在mysql data目录中找log文件（可以在my.ini中找到目录位置）</p>
+<h4 id="索引优化"><a href="#索引优化" class="headerlink" title="索引优化"></a><strong>索引优化</strong></h4><h5 id="①、何时使用聚集索引或非聚集索引？"><a href="#①、何时使用聚集索引或非聚集索引？" class="headerlink" title="①、何时使用聚集索引或非聚集索引？"></a><strong>①、何时使用聚集索引或非聚集索引？</strong></h5><table>
+<thead>
+<tr>
+<th>动作描述</th>
+<th>使用聚集索引</th>
+<th>使用非聚集索引</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>列经常被分组排序</td>
+<td>使用</td>
+<td>使用</td>
+</tr>
+<tr>
+<td>返回某范围内的数据</td>
+<td>使用</td>
+<td>不使用</td>
+</tr>
+<tr>
+<td>一个或极少不同值</td>
+<td>不使用</td>
+<td>不使用</td>
+</tr>
+<tr>
+<td>小数目的不同值</td>
+<td>使用</td>
+<td>不使用</td>
+</tr>
+<tr>
+<td>大数目的不同值</td>
+<td>不使用</td>
+<td>使用</td>
+</tr>
+<tr>
+<td>频繁更新的列</td>
+<td>不使用</td>
+<td>使用</td>
+</tr>
+<tr>
+<td>外键列</td>
+<td>使用</td>
+<td>使用</td>
+</tr>
+<tr>
+<td>主键列</td>
+<td>使用</td>
+<td>使用</td>
+</tr>
+<tr>
+<td>频繁修改索引列</td>
+<td>不使用</td>
+<td>使用</td>
+</tr>
+</tbody>
+</table>
+<h5 id="②、-索引不会包含有NULL值的列"><a href="#②、-索引不会包含有NULL值的列" class="headerlink" title="②、 索引不会包含有NULL值的列"></a><strong>②、 索引不会包含有NULL值的列</strong></h5><p>只要列中包含有NULL值都将不会被包含在索引中，复合索引中只要有一列含有NULL值，那么这一列对于此复合索引就是无效的。所以我们在数据库设计时不要让字段的默认值为NULL。</p>
+<h5 id="③、使用短索引"><a href="#③、使用短索引" class="headerlink" title="③、使用短索引"></a><strong>③、使用短索引</strong></h5><p>对串列进行索引，如果可能应该指定一个前缀长度。例如，如果有一个CHAR(255)的列，如果在前10个或20个字符内，多数值是惟一的，那么就不要对整个列进行索引。短索引不仅可以提高查询速度而且可以节省磁盘空间和I/O操作。</p>
+<h5 id="④、-索引列排序"><a href="#④、-索引列排序" class="headerlink" title="④、 索引列排序"></a><strong>④、 索引列排序</strong></h5><p>MySQL查询只使用一个索引，因此如果where子句中已经使用了索引的话，那么order by中的列是不会使用索引的。因此数据库默认排序可以符合要求的情况下不要使用排序操作；尽量不要包含多个列的排序，如果需要最好给这些列创建复合索引。</p>
+<h5 id="⑤、-like语句操作"><a href="#⑤、-like语句操作" class="headerlink" title="⑤、 like语句操作"></a><strong>⑤、 like语句操作</strong></h5><p>一般情况下不鼓励使用like操作，如果非使用不可，如何使用也是一个问题。like “%aaa%” 不会使用索引而like “aaa%”可以使用索引。</p>
+<h5 id="⑥、-不要在列上进行运算"><a href="#⑥、-不要在列上进行运算" class="headerlink" title="⑥、 不要在列上进行运算"></a><strong>⑥、 不要在列上进行运算</strong></h5><p>例如：select <em> from users where YEAR(adddate)&lt;2007，将在每个行上进行运算，这将导致索引失效而进行全表扫描，因此我们可以改成：select </em> from users where adddate&lt;’2007-01-01′。</p>
+<h3 id="11、硬件优化"><a href="#11、硬件优化" class="headerlink" title="11、硬件优化"></a><strong>11、硬件优化</strong></h3><p><img src="/images/MySQL优化/10.gif" alt=""></p>
+<h4 id="从图上可以看到基本上每种设备都有两个指标："><a href="#从图上可以看到基本上每种设备都有两个指标：" class="headerlink" title="从图上可以看到基本上每种设备都有两个指标："></a><strong>从图上可以看到基本上每种设备都有两个指标：</strong></h4><p>延时（响应时间）：表示硬件的突发处理能力；</p>
+<p>带宽（吞吐量）：代表硬件持续处理能力。</p>
+<h4 id="从上图可以看出，计算机系统硬件性能从高到代依次为："><a href="#从上图可以看出，计算机系统硬件性能从高到代依次为：" class="headerlink" title="从上图可以看出，计算机系统硬件性能从高到代依次为："></a><strong>从上图可以看出，计算机系统硬件性能从高到代依次为：</strong></h4><p>CPU——Cache(L1-L2-L3)——内存——SSD硬盘——网络——硬盘</p>
+<p>由于SSD硬盘还处于快速发展阶段，所以本文的内容不涉及SSD相关应用系统。</p>
+<h4 id="根据数据库知识，我们可以列出每种硬件主要的工作内容："><a href="#根据数据库知识，我们可以列出每种硬件主要的工作内容：" class="headerlink" title="根据数据库知识，我们可以列出每种硬件主要的工作内容："></a><strong>根据数据库知识，我们可以列出每种硬件主要的工作内容：</strong></h4><p>CPU及内存：缓存数据访问、比较、排序、事务检测、SQL解析、函数或逻辑运算；</p>
+<p>网络：结果数据传输、SQL请求、远程数据库访问（dblink）；</p>
+<p>硬盘：数据访问、数据写入、日志记录、<a href="http://lib.csdn.net/base/hadoop" target="_blank" rel="noopener">大数据</a>量排序、大表连接。</p>
+<h4 id="性能基本优化法则："><a href="#性能基本优化法则：" class="headerlink" title="性能基本优化法则："></a><strong>性能基本优化法则：</strong></h4><p><img src="/images/MySQL优化/11.gif" alt=""></p>
+<p><strong>优化法则归纳为5个层次：</strong></p>
+<p>1、  减少数据访问（减少磁盘访问）</p>
+<p>2、  返回更少数据（减少网络传输或磁盘访问）</p>
+<p>3、  减少交互次数（减少网络传输）</p>
+<p>4、  减少服务器CPU开销（减少CPU及内存开销）</p>
+<p>5、  利用更多资源（增加资源）</p>
+<p> 由于每一层优化法则都是解决其对应硬件的性能问题，所以带来的性能提升比例也不一样。传统数据库系统设计是也是尽可能对低速设备提供优化方法，因此针对低速设备问题的可优化手段也更多，优化成本也更低。我们任何一个SQL的性能优化都应该按这个规则由上到下来诊断问题并提出解决方案，而不应该首先想到的是增加资源解决问题。</p>
+<h4 id="以下是每个优化法则层级对应优化效果及成本经验参考："><a href="#以下是每个优化法则层级对应优化效果及成本经验参考：" class="headerlink" title="以下是每个优化法则层级对应优化效果及成本经验参考："></a><strong>以下是每个优化法则层级对应优化效果及成本经验参考：</strong></h4><table>
+<thead>
+<tr>
+<th><strong>优化法则</strong></th>
+<th><strong>性能提升效果</strong></th>
+<th><strong>优化成本</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>减少数据访问</td>
+<td>1~1000</td>
+<td>低</td>
+</tr>
+<tr>
+<td>返回更少数据</td>
+<td>1~100</td>
+<td>低</td>
+</tr>
+<tr>
+<td>减少交互次数</td>
+<td>1~20</td>
+<td>低</td>
+</tr>
+<tr>
+<td>减少服务器CPU开销</td>
+<td>1~5</td>
+<td>低</td>
+</tr>
+<tr>
+<td>利用更多资源</td>
+<td>@~10</td>
+<td>高</td>
+</tr>
+</tbody>
+</table>
+<h3 id="参考："><a href="#参考：" class="headerlink" title="参考："></a><strong>参考：</strong></h3><p>分库/分表实现参考：<a href="https://www.jianshu.com/u/138209947f2b" target="_blank" rel="noopener">codingBoyJack</a></p>
+
+            </div>
+            <hr>
+
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff;
+        background-color: #22AB38;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff;
+        background-color: #019FE8;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a class="reward-link btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs">
+                        <li class="tab wechat-tab waves-effect waves-light"><a class="active" href="#wechat">微信</a></li>
+                        <li class="tab alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                    </ul>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.png" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('#reward .reward-link').on('click', function () {
+            $('#rewardModal').openModal();
+        });
+
+        $('#rewardModal .close').on('click', function () {
+            $('#rewardModal').closeModal();
+        });
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            <div class="reprint">
+                <p>
+                    <span class="reprint-tip">转载请注明: </span>
+                    <a href="http://yoursite.com" class="b-link-green">Potato博客</a>
+                    <i class="fa fa-angle-right fa-lg fa-fw text-color"></i>
+                    <a href="/2019/04/11/sql-zong-he-you-hua/" class="b-link-green">MySQL综合优化</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">上一篇</div>
+            <div class="card">
+                <a href="/2019/04/12/sql-yu-ju-you-hua/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/8.jpg" class="responsive-img" alt="MySQL语句优化">
+                        
+                        <span class="card-title">MySQL语句优化</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary">怎么加快查询速度，优化查询效率，主要原则就是应尽量避免全表扫描，应该考虑在where及order by 涉及的列上建立索引。
+建立索引不是建的越多越好，原则是：
+①、一个表的索引不是越多越好，也没有一个具体的数字，根据以往的经验，一个表的索</div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-04-12
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/数据库/" class="post-category" target="_blank">
+                                    数据库
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/MySQL优化/" target="_blank">
+                        <span class="chip bg-color">MySQL优化</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">下一篇</div>
+            <div class="card">
+                <a href="/2019/04/09/trinity-diao-du-yan-chi-jie-jue-fang-fa/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/19.jpg" class="responsive-img" alt="Trinity调度延迟解决方法">
+                        
+                        <span class="card-title">Trinity调度延迟解决方法</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary">1、查询各表占用的空间
+SELECT
+   relname as "Table",
+   pg_size_pretty(pg_total_relation_size(relid)) As "Size",
+   pg_size_pretty(</div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-04-09
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/Trinity/" class="post-category" target="_blank">
+                                    Trinity
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/ETL/" target="_blank">
+                        <span class="chip bg-color">ETL</span>
+                    </a>
+                    
+                    <a href="/tags/Trinity/" target="_blank">
+                        <span class="chip bg-color">Trinity</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + '来源: Potato博客<br />'
+            + '作者: Potato<br />'
+            + '链接: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+    
+
+</main>
+
+
+<footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            本站基于
+            <a href="https://hexo.io/" target="_blank">Hexo</a> 的
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">hexo-theme-matery</a>主题搭建.
+
+            
+    		
+                <br>
+                <span id="busuanzi_container_site_pv">
+                    本站总访问量 <span id="busuanzi_value_site_pv" style="color: #fff;"></span> 次,&nbsp;
+                </span>
+    			<span id="busuanzi_container_site_uv">
+                    访客数 <span id="busuanzi_value_site_uv" style="color: #fff;"></span> 人.
+                </span>
+    		
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis"><a href="https://github.com/zhangpotato" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+    <i class="fa fa-github"></i>
+</a>
+<!-- <a href="mailto:chenjiayin1990@163.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+    <i class="fa fa-envelope-open"></i>
+</a>
+<a href="#!" class="tooltipped" data-tooltip="QQ联系我: 1181062873" data-position="top" data-delay="50">
+    <i class="fa fa-qq"></i>
+</a> -->
+<!-- 
+<a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+    <i class="fa fa-rss"></i>
+</a>
+ --></div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+<!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title">搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字" class="search-input" autofocus>
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+</script>
+<!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+<script src="/libs/materialize/js/materialize.min.js"></script>
+<script src="/libs/masonry/masonry.pkgd.min.js"></script>
+<script src="/libs/aos/aos.js"></script>
+<script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+<script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+<script src="/js/matery.js"></script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+
+    <script src="/libs/others/clicklove.js"></script>
+
+
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+
+
+</body>
+</html>

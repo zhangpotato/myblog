@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2019-01-16T14:27:32.139Z</updated>
+  <updated>2019-06-04T03:41:59.959Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -17,11 +17,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Hello World</title>
-    <link href="http://yoursite.com/2019/01/16/hello-world/"/>
-    <id>http://yoursite.com/2019/01/16/hello-world/</id>
-    <published>2019-01-16T14:27:32.139Z</published>
-    <updated>2019-01-16T14:27:32.139Z</updated>
+    <title>Linux常用命令</title>
+    <link href="http://yoursite.com/2019/06/04/linux-chang-yong-ming-ling/"/>
+    <id>http://yoursite.com/2019/06/04/linux-chang-yong-ming-ling/</id>
+    <published>2019-06-04T03:37:00.000Z</published>
+    <updated>2019-06-04T03:41:59.959Z</updated>
     
     <summary type="html">
     
@@ -29,21 +29,25 @@
       
         
         
-          &lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a
+          &lt;h2 id=&quot;一、压缩命令&quot;&gt;&lt;a href=&quot;#一、压缩命令&quot; class=&quot;headerlink&quot; title=&quot;一、压缩命令&quot;&gt;&lt;/a&gt;一、压缩命令&lt;/h2&gt;&lt;p&gt;默认压缩级别情况下,1.8G数据 压缩大小: gzip (462M) &amp;gt; bzip2 (238M)
         
       
     
     </summary>
     
+      <category term="Linux" scheme="http://yoursite.com/categories/Linux/"/>
+    
+    
+      <category term="Linux基础" scheme="http://yoursite.com/tags/Linux%E5%9F%BA%E7%A1%80/"/>
     
   </entry>
   
   <entry>
-    <title>typora-vue-theme主题介绍</title>
-    <link href="http://yoursite.com/2018/09/07/front-master/"/>
-    <id>http://yoursite.com/2018/09/07/front-master/</id>
-    <published>2018-09-07T01:25:00.000Z</published>
-    <updated>2019-01-16T14:37:40.616Z</updated>
+    <title>CDH5.14.2安装手册</title>
+    <link href="http://yoursite.com/2019/06/04/cdh5.14.2-an-zhuang-shou-ce/"/>
+    <id>http://yoursite.com/2019/06/04/cdh5.14.2-an-zhuang-shou-ce/</id>
+    <published>2019-06-04T03:37:00.000Z</published>
+    <updated>2019-06-04T05:51:59.767Z</updated>
     
     <summary type="html">
     
@@ -51,18 +55,269 @@
       
         
         
-          &lt;p&gt;mac
+          &lt;h2 id=&quot;一、基础环境配置&quot;&gt;&lt;a href=&quot;#一、基础环境配置&quot; class=&quot;headerlink&quot; title=&quot;一、基础环境配置&quot;&gt;&lt;/a&gt;一、基础环境配置&lt;/h2&gt;&lt;p&gt;1、修改主机名&lt;/p&gt;
+&lt;pre class=&quot; language-sh&quot;&gt;&lt;code
         
       
     
     </summary>
     
-      <category term="Markdown" scheme="http://yoursite.com/categories/Markdown/"/>
+      <category term="CDH" scheme="http://yoursite.com/categories/CDH/"/>
     
     
-      <category term="Typora" scheme="http://yoursite.com/tags/Typora/"/>
+      <category term="BigData" scheme="http://yoursite.com/tags/BigData/"/>
     
-      <category term="Markdown" scheme="http://yoursite.com/tags/Markdown/"/>
+      <category term="CDH安装" scheme="http://yoursite.com/tags/CDH%E5%AE%89%E8%A3%85/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SQL语句不会触发索引的原因</title>
+    <link href="http://yoursite.com/2019/04/18/sql-yu-ju-bu-hui-hong-fa-suo-yin-de-yuan-yin/"/>
+    <id>http://yoursite.com/2019/04/18/sql-yu-ju-bu-hui-hong-fa-suo-yin-de-yuan-yin/</id>
+    <published>2019-04-18T08:11:00.000Z</published>
+    <updated>2019-06-04T05:46:32.368Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h2 id=&quot;1、查询谓词没有使用索引的主要边界-换句话说就是select-，可能会导致不走索引。&quot;&gt;&lt;a href=&quot;#1、查询谓词没有使用索引的主要边界-换句话说就是select-，可能会导致不走索引。&quot; class=&quot;headerlink&quot;
+        
+      
+    
+    </summary>
+    
+      <category term="数据库" scheme="http://yoursite.com/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+    
+      <category term="MySQL优化" scheme="http://yoursite.com/tags/MySQL%E4%BC%98%E5%8C%96/"/>
+    
+      <category term="SQL优化" scheme="http://yoursite.com/tags/SQL%E4%BC%98%E5%8C%96/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>MySQL语句优化</title>
+    <link href="http://yoursite.com/2019/04/12/sql-yu-ju-you-hua/"/>
+    <id>http://yoursite.com/2019/04/12/sql-yu-ju-you-hua/</id>
+    <published>2019-04-12T08:03:00.000Z</published>
+    <updated>2019-06-04T05:46:38.539Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;怎么加快查询速度，优化查询效率，主要原则就是应尽量避免全表扫描，应该考虑在where及order by
+        
+      
+    
+    </summary>
+    
+      <category term="数据库" scheme="http://yoursite.com/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+    
+      <category term="MySQL优化" scheme="http://yoursite.com/tags/MySQL%E4%BC%98%E5%8C%96/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>MySQL综合优化</title>
+    <link href="http://yoursite.com/2019/04/11/sql-zong-he-you-hua/"/>
+    <id>http://yoursite.com/2019/04/11/sql-zong-he-you-hua/</id>
+    <published>2019-04-11T08:03:00.000Z</published>
+    <updated>2019-06-04T05:36:54.958Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h2 id=&quot;MySQL如何实现优化？&quot;&gt;&lt;a href=&quot;#MySQL如何实现优化？&quot; class=&quot;headerlink&quot; title=&quot;MySQL如何实现优化？&quot;&gt;&lt;/a&gt;&lt;strong&gt;MySQL如何实现优化？&lt;/strong&gt;&lt;/h2&gt;&lt;h3
+        
+      
+    
+    </summary>
+    
+      <category term="数据库" scheme="http://yoursite.com/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+    
+      <category term="MySQL优化" scheme="http://yoursite.com/tags/MySQL%E4%BC%98%E5%8C%96/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Trinity调度延迟解决方法</title>
+    <link href="http://yoursite.com/2019/04/09/trinity-diao-du-yan-chi-jie-jue-fang-fa/"/>
+    <id>http://yoursite.com/2019/04/09/trinity-diao-du-yan-chi-jie-jue-fang-fa/</id>
+    <published>2019-04-09T09:15:00.000Z</published>
+    <updated>2019-06-04T04:59:32.089Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;1、查询各表占用的空间&lt;/p&gt;
+&lt;pre class=&quot; language-sql&quot;&gt;&lt;code class=&quot;language-sql&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;SELECT&lt;/span&gt;
+   relname &lt;span
+        
+      
+    
+    </summary>
+    
+      <category term="Trinity" scheme="http://yoursite.com/categories/Trinity/"/>
+    
+    
+      <category term="ETL" scheme="http://yoursite.com/tags/ETL/"/>
+    
+      <category term="Trinity" scheme="http://yoursite.com/tags/Trinity/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>搭建HDP集群报OPEN SSL问题解决方法</title>
+    <link href="http://yoursite.com/2019/03/27/open-ssl-bao-cuo/"/>
+    <id>http://yoursite.com/2019/03/27/open-ssl-bao-cuo/</id>
+    <published>2019-03-27T01:27:00.000Z</published>
+    <updated>2019-04-12T08:13:39.828Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;报错：&lt;/p&gt;
+&lt;pre class=&quot; language-shell&quot;&gt;&lt;code class=&quot;language-shell&quot;&gt;ERROR 2015-09-23 09:47:07,402 NetUtil.py:77 - [Errno 8] _ssl.c:492:
+        
+      
+    
+    </summary>
+    
+      <category term="HDP" scheme="http://yoursite.com/categories/HDP/"/>
+    
+    
+      <category term="Hadoop问题" scheme="http://yoursite.com/tags/Hadoop%E9%97%AE%E9%A2%98/"/>
+    
+      <category term="BigData" scheme="http://yoursite.com/tags/BigData/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>HDFS WEB UI上缺少datanode的问题解决方法</title>
+    <link href="http://yoursite.com/2019/03/19/web-ui-shang-que-shao-datanode/"/>
+    <id>http://yoursite.com/2019/03/19/web-ui-shang-que-shao-datanode/</id>
+    <published>2019-03-19T06:25:00.000Z</published>
+    <updated>2019-04-12T08:13:05.773Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h2 id=&quot;1、集群结构&quot;&gt;&lt;a href=&quot;#1、集群结构&quot; class=&quot;headerlink&quot; title=&quot;1、集群结构&quot;&gt;&lt;/a&gt;1、集群结构&lt;/h2&gt;&lt;pre class=&quot; language-sh&quot;&gt;&lt;code
+        
+      
+    
+    </summary>
+    
+      <category term="HDP" scheme="http://yoursite.com/categories/HDP/"/>
+    
+    
+      <category term="Hadoop问题" scheme="http://yoursite.com/tags/Hadoop%E9%97%AE%E9%A2%98/"/>
+    
+      <category term="BigData" scheme="http://yoursite.com/tags/BigData/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Splice Engine历史拉链测试总结</title>
+    <link href="http://yoursite.com/2019/03/19/splice-engine-li-shi-la-lian-ce-shi-zong-jie/"/>
+    <id>http://yoursite.com/2019/03/19/splice-engine-li-shi-la-lian-ce-shi-zong-jie/</id>
+    <published>2019-03-19T06:25:00.000Z</published>
+    <updated>2019-06-04T05:46:24.340Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h2 id=&quot;基本环境参数&quot;&gt;&lt;a href=&quot;#基本环境参数&quot; class=&quot;headerlink&quot;
+        
+      
+    
+    </summary>
+    
+      <category term="Splice Engine" scheme="http://yoursite.com/categories/Splice-Engine/"/>
+    
+    
+      <category term="Splice Engine优化" scheme="http://yoursite.com/tags/Splice-Engine%E4%BC%98%E5%8C%96/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Yarn Register DNS 端口占用</title>
+    <link href="http://yoursite.com/2019/01/29/yarn-register-dns/"/>
+    <id>http://yoursite.com/2019/01/29/yarn-register-dns/</id>
+    <published>2019-01-29T08:39:00.000Z</published>
+    <updated>2019-06-04T05:46:49.632Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;如果在安装时看到与YARN Registry DNS Bind Port相关的错误。可以参考以下步骤操作：&lt;/p&gt;
+&lt;h2 id=&quot;1、打开Ambari管理界面并进入YARN管理界面&quot;&gt;&lt;a href=&quot;#1、打开Ambari管理界面并进入YARN管理界面&quot;
+        
+      
+    
+    </summary>
+    
+      <category term="HDP" scheme="http://yoursite.com/categories/HDP/"/>
+    
+    
+      <category term="Hadoop问题" scheme="http://yoursite.com/tags/Hadoop%E9%97%AE%E9%A2%98/"/>
+    
+      <category term="BigData" scheme="http://yoursite.com/tags/BigData/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>HDP安装——基础环境配置</title>
+    <link href="http://yoursite.com/2019/01/29/hdp-an-zhuang-ji-chu-pei-zhi/"/>
+    <id>http://yoursite.com/2019/01/29/hdp-an-zhuang-ji-chu-pei-zhi/</id>
+    <published>2019-01-29T05:39:00.000Z</published>
+    <updated>2019-04-12T08:08:49.819Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h2 id=&quot;一、下载安装包&quot;&gt;&lt;a href=&quot;#一、下载安装包&quot; class=&quot;headerlink&quot;
+        
+      
+    
+    </summary>
+    
+      <category term="HDP" scheme="http://yoursite.com/categories/HDP/"/>
+    
+    
+      <category term="BigData" scheme="http://yoursite.com/tags/BigData/"/>
+    
+      <category term="HDP安装" scheme="http://yoursite.com/tags/HDP%E5%AE%89%E8%A3%85/"/>
     
   </entry>
   
